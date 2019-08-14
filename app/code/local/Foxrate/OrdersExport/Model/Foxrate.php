@@ -21,7 +21,7 @@ class Foxrate_OrdersExport_Model_Foxrate
     /**
      * Foxrate plugin version
      */
-    protected $_foxratePluginVersion = '3.0.8';
+    protected $_foxratePluginVersion = '3.1.1';
 
     public function __construct()
     {
@@ -67,7 +67,6 @@ class Foxrate_OrdersExport_Model_Foxrate
     {
         return $this->foxrateUrl;
     }
-
 
     protected function _makeRequest($url, $headers = array(), $params = null)
     {
