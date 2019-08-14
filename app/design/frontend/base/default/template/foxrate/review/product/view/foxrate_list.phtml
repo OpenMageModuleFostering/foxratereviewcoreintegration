@@ -11,17 +11,19 @@
 
         <div class="frRating-top-all">
             <?php //echo $this->getChildHtml('foxrate_summary', false) ?>
-            <?php echo $this->getLayout()->getBlockSingleton('review/form')->setTemplate('foxrate/review/foxrate_general_details.phtml')->toHtml(); ?>
+            <?php echo $this->getLayout()->getBlockSingleton('review/form')->setTemplate('foxrate/foxrate_general_details.phtml')->toHtml(); ?>
         </div>
     </div>
     <?php endif; ?>
 
 </div>
-<h2><?php echo $this->__('Customer Reviews') ?></h2>
 <?php //echo $this->getChildHtml('foxrate_review_list') ?>
-<?php echo $this->getLayout()->getBlockSingleton('review/form')->setTemplate('foxrate/review/foxrate_review_list.phtml')->toHtml(); ?>
+<?php echo $this->getLayout()->getBlockSingleton('review/form')->setTemplate('foxrate/foxrate_review_list.phtml')->toHtml(); ?>
+
+
 
 <script type="text/javascript" src="<?php echo $this->getSkinUrl('js/foxrate/jquery.1.8.3.min.js')?>"></script>
+<script>jQuery.noConflict();</script>
 <script type="text/javascript" src="<?php echo $this->getSkinUrl('js/foxrate/foxrateProdRev.js')?>"></script>
 <script type="text/javascript" src="<?php echo $this->getSkinUrl('js/foxrate/modalbox/js/jquery.modalbox-1.4.1.js')?>"></script>
 <link rel="stylesheet" type="text/css" href="<?php echo $this->getSkinUrl('js/foxrate/modalbox/css/jquery.modalbox.css')?>" media="all" />

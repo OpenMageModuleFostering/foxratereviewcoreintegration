@@ -24,7 +24,7 @@
         <div class="rating-all">
             <div class="inset align-middle">
                 <a class='starFilter'
-                   onclick="loadUserRevPage(1, '<?php echo $this->getAjaxControllerUrl(); ?>', '<?php  echo $this->getFoxrateProductId(); ?>', {star:<?php echo $key; ?>});"
+                   onclick="loadUserRevPage(1, '<?php echo $reviewHelper->getFoxrateShopUrl(); ?>', '<?php  echo $this->getFoxrateProductId(); ?>', {star:<?php echo $key; ?>});"
                    href="javascript:void(0)"><?php echo $key; ?> <?php echo $this->__('FOXRATE_STARS'); ?></a>
                 &nbsp;&nbsp;
             </div>
@@ -41,34 +41,43 @@
     <table>
         <tbody>
         <tr>
-            <td width="160" class='avgRatingTitle'>
-                <strong><?php echo $this->__('FOXRATE_IMPRESSION' ); ?></strong></td>
-            <td>
-                <div class="stars-small left">
+            <td class='avgRatingTitle'>
+                <div class="fleft ratingTitle">
+                    <strong><?php echo $this->__('FOXRATE_IMPRESSION' ); ?></strong>
+                </div>
+                <div class="fleft stars-small ">
                     <div style="width:<?php echo Mage::helper('reviewcoreintegration')->formatCalcPercent($foxrateReviewGeneralData['questions_averages']['usability'], 5) ; ?>%;"
                          class="stars-small yellow left"></div>
                 </div>
             </td>
             <td class="rateValue"><?php echo $foxrateReviewGeneralData['questions_averages']['usability']; ?><span
-                    style="color:grey"><?php echo $this->__('FOXRATE_OF_FIVE' ); ?></span></td>
+                    style="color:grey"><?php echo $this->__('FOXRATE_OF_FIVE' ); ?></span>
+            </td>
         </tr>
         <tr>
-            <td><?php echo $this->__('FOXRATE_QUALITY' ); ?></td>
             <td>
-                <div class="stars-small left">
+                <div class="fleft ratingTitle">
+                    <?php echo $this->__('FOXRATE_QUALITY' ); ?>
+                </div>
+                <div class="fleft stars-small">
                     <div style="width:<?php echo Mage::helper('reviewcoreintegration')->formatCalcPercent($foxrateReviewGeneralData['questions_averages']['quality'], 5) ; ?>%;"
-                         class="stars-small yellow left"></div>
+                         class="stars-small yellow left">
+                    </div>
                 </div>
             </td>
             <td class="rateValue"><?php echo $foxrateReviewGeneralData['questions_averages']['quality']; ?><span
-                    style="color:grey"><?php echo $this->__('FOXRATE_OF_FIVE' ); ?></span></td>
+                    style="color:grey"><?php echo $this->__('FOXRATE_OF_FIVE' ); ?></span>
+            </td>
         </tr>
         <tr>
-            <td><?php echo $this->__('FOXRATE_VALUE_FOR_MONEY' ); ?></td>
             <td>
-                <div class="stars-small left">
+                <div class="fleft ratingTitle">
+                     <?php echo $this->__('FOXRATE_VALUE_FOR_MONEY' ); ?>
+                </div>
+                <div class="fleft stars-small">
                     <div style="width:<?php echo Mage::helper('reviewcoreintegration')->formatCalcPercent($foxrateReviewGeneralData['questions_averages']['price'], 5) ; ?>%;"
-                         class="stars-small yellow left"></div>
+                         class="stars-small yellow left">
+                     </div>
                 </div>
             </td>
             <td class="rateValue"><?php echo $foxrateReviewGeneralData['questions_averages']['price']; ?><span

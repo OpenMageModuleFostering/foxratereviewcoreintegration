@@ -1,39 +1,20 @@
 globalStar = '';
 globalSort = '';
 globalSearch = '';
-
-var j183 = new function(){
-
-    // j183 v1.7
-    var jQuery = window.jQuery.noConflict(true); // create jQuery varible in local scope
-    var $ = jQuery;
-
-    this.version = function() {
-        // in this plase we always have 1.7 version of jQuery
-        return jQuery.fn.jquery;
-    }
-
-    this.getjQuery = function() {
-        return jQuery;
-    }
-}
-
-$j183 = j183.getjQuery();
-
-$j183('.starFilter').click(function(){j183('#showAll').removeClass('hide')});
-$j183('#showAll').click(function(){j183('#showAll').addClass('hide')});
-$j183("#searchExec").click(function(){loadUserRevPage(1 , document.getElementById('shopUrl').value, document.getElementById('productId').value, {frsearch:document.getElementById('frsearch').value})});
-$j183("#sortingExec").change(function(){loadUserRevPage(1, document.getElementById('shopUrl').value, document.getElementById('productId').value, {sort:this.value})});
-$j183("#showAllExec").click(function(){loadUserRevPage(1, document.getElementById('shopUrl').value, document.getElementById('productId').value, {star:''})});
-$j183('#foxrateProductReviews').ready(cacheOnDemandProdRev(document.getElementById('shopUrl').value, document.getElementById('productId').value));
-$j183('#readReviews').click(function() {
-    $j183('html, body').animate({
-        scrollTop: $j183("#itemTabs").offset().top
+jQuery('.starFilter').click(function(){jQuery('#showAll').removeClass('hide')});
+jQuery('#showAll').click(function(){jQuery('#showAll').addClass('hide')});
+jQuery("#searchExec").click(function(){loadUserRevPage(1 , document.getElementById('shopUrl').value, document.getElementById('productId').value, {frsearch:document.getElementById('frsearch').value})});
+jQuery("#sortingExec").change(function(){loadUserRevPage(1, document.getElementById('shopUrl').value, document.getElementById('productId').value, {sort:this.value})});
+jQuery("#showAllExec").click(function(){loadUserRevPage(1, document.getElementById('shopUrl').value, document.getElementById('productId').value, {star:''})});
+jQuery('#foxrateProductReviews').ready(cacheOnDemandProdRev(document.getElementById('shopUrl').value, document.getElementById('productId').value));
+jQuery('#readReviews').click(function() {
+    jQuery('html, body').animate({
+        scrollTop: jQuery("#itemTabs").offset().top
     }, 1000);
 
-    $j183('#foxrateProductReviewsTab').click();
+    jQuery('#foxrateProductReviewsTab').click();
 });
-$j183("#search").keypress(function(event) {
+jQuery("#search").keypress(function(event) {
     if (event.which == 13) {
         event.preventDefault();
         loadUserRevPage(1 , document.getElementById('shopUrl').value, document.getElementById('productId').value, {frsearch:document.getElementById('frsearch').value});
@@ -76,12 +57,14 @@ function loadUserRevPage(revPage, shopUrl, prodId, params)
         urlData['frsearch'] = globalSearch;
     }
 
-    call = $j183.ajax({
+    jQuery.noConflict();
+
+    call = jQuery.ajax({
         type:"POST",
         url:shopUrl + '?ajax=true',
         data:urlData
     });
-    userRevBlock = $j183("#userReviews");
+    userRevBlock = jQuery("#userReviews");
     call.done(function (msg) {
         userRevBlock.fadeOut(300, function () {
             userRevBlock.html(msg);
@@ -100,18 +83,20 @@ function loadUserRevPage(revPage, shopUrl, prodId, params)
 function voteReview(shopUrl, revId, useful)
 {
     urlData = { cl:"foxrate_apicall", fnc:"voteReview", review:revId, useful: useful};
-    call = $j183.ajax({type: 'POST', url:shopUrl, data:urlData});
+    jQuery.noConflict();
+    call = jQuery.ajax({type: 'POST', url:shopUrl, data:urlData});
     call.done(function(msg){
         obj = JSON.parse(msg);
         if(obj.status == "OK")
         {
-            $j183("#review-"+revId).fadeOut(300, function () {
-                $j183("#reviewThanks-"+revId).fadeIn(300, function(){});
+            jQuery("#review-"+revId).fadeOut(300, function () {
+            jQuery("#reviewThanks-"+revId).fadeIn(300, function(){});
             });
 
         }
     })
 }
+
 
 /**
  * ajax for reporting abuse
@@ -122,18 +107,20 @@ function voteReview(shopUrl, revId, useful)
 function abuseReview(shopUrl, revId, abuse)
 {
     urlData = { cl:"foxrate_apicall", fnc:"abuseReview", review:revId, abuse: abuse};
-    call = $j183.ajax({type: 'POST', url:shopUrl, data:urlData});
+    jQuery.noConflict();
+    call = jQuery.ajax({type: 'POST', url:shopUrl, data:urlData});
     call.done(function(msg){
         obj = JSON.parse(msg);
         if(obj.status == "OK")
         {
-            $j183("#review-"+revId).fadeOut(300, function () {
-                $j183("#reviewThanks-"+revId).fadeIn(300, function(){});
+            jQuery("#review-"+revId).fadeOut(300, function () {
+                jQuery("#reviewThanks-"+revId).fadeIn(300, function(){});
             });
 
         }
     })
 }
+
 
 /**
  * Ajax call for 'Caching on Demand'
@@ -141,9 +128,14 @@ function abuseReview(shopUrl, revId, abuse)
 function cacheOnDemandProdRev(shopUrl, prodId)
 {
     urlData = { cl:"foxrate_apicall", fnc:"cache_demand", product:prodId};
-    call = $j183.ajax({type: 'POST', url:shopUrl, data:urlData});
+    call = jQuery.ajax({type: 'POST', url:shopUrl, data:urlData});
     call.done(function(msg){
         //for debuging
         //alert(msg);
     })
 }
+
+
+
+
+

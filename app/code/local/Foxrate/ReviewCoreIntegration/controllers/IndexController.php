@@ -12,16 +12,11 @@ class Foxrate_ReviewCoreIntegration_IndexController extends Mage_Core_Controller
 
         if ((bool)$this->getRequest()->getParam('ajax')) { // ?ajax=true
 
-            try {
-                $this->loadLayout();
+            $this->loadLayout();
 
-                $this->getLayout()->getBlock('root')->setTemplate(
-                    'foxrate/review/foxrate_review_list.phtml'
-                );
-
-            } catch (Foxrate_Sdk_ApiBundle_Exception_ReviewsNotFoundException $e) {
-                $this->assign('foxrateFiError', $e->getMessage());
-            }
+            $this->getLayout()->getBlock('root')->setTemplate(
+                'foxrate/review/product/view/foxrate_ajax_list.phtml'
+            ); //changes the root template
 
             $this->renderLayout();
         }

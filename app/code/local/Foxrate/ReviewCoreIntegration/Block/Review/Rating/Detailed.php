@@ -25,24 +25,22 @@ class Foxrate_ReviewCoreIntegration_Block_Review_Rating_Detailed extends Mage_Co
             $this->reviewTotalsData = $this->reviewTotalsModel->getReviewTotalData($this->getEntityId());
 
             $this->assign('reviewTotals', $this->reviewTotalsModel);
-            $this->assign(
-                'reviewLink',
-                $this->getKernel()->get('rci.review')->getWriteReviewLink($this->getEntityId())
-            );
-            //        $this->assign('reviewLink', $this->getWriteReviewLink($this->getEntityId()));
+            $this->assign('reviewLink', $this->getKernel()->get('rci.review')->getWriteReviewLink($this->getEntityId()));
+    //        $this->assign('reviewLink', $this->getWriteReviewLink($this->getEntityId()));
             $this->assign('entityId', $this->getEntityId());
             $this->assign('ratingHelper', $this->getKernel()->get('rci.rating_helper'));
 
-        } catch (Foxrate_Sdk_ApiBundle_Exception_ReviewsNotFoundException $e) {
-            $this->setTemplate('rating/empty.phtml');
-            return parent::_toHtml();
-
+            if (0 == $this->reviewTotalsModel()->getTotalReviews())
+            {
+                $this->setTemplate('rating/empty.phtml');
+                return parent::_toHtml();
+            }
         } catch (Foxrate_Sdk_ApiBundle_Exception_Communicate $e) {
-            $this->getKernel()->get('shop.configuration')->log('Cannot connect to Foxrate API.');
-        }
 
+        }
         return parent::_toHtml();
     }
+
 
     /**
      * Gets link to write user review
