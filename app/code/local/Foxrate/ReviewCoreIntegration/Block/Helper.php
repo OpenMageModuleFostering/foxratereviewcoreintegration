@@ -45,11 +45,9 @@ class Foxrate_ReviewCoreIntegration_Block_Helper extends Mage_Review_Block_Helpe
             $this->assign('processedReviews', $this->getKernel()->get('rci.rating_helper'));
             $this->assign('entityId', $this->getEntityId());
 
-            if (0 == $reviewTotals->getTotalReviews())
-            {
-                $this->setTemplate('foxrate/rating/empty.phtml');
-                return parent::_toHtml();
-            }
+        } catch (Foxrate_Sdk_ApiBundle_Exception_ReviewsNotFoundException $e) {
+            $this->setTemplate('foxrate/rating/empty.phtml');
+            return parent::_toHtml();
 
         } catch (Foxrate_Sdk_ApiBundle_Exception_Communicate $e) {
             $this->setTemplate('review/helper/summary.phtml');
