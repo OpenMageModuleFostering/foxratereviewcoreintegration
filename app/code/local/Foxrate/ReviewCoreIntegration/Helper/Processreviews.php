@@ -77,6 +77,7 @@ class Foxrate_ReviewCoreIntegration_Helper_Processreviews extends Mage_Core_Help
         {
             $pageRevInfo = array( "error" => $e->getMessage());
         }
+
         $this->processedReviews = $pageRevInfo;
         return $this->processedReviews;
     }
@@ -155,8 +156,8 @@ class Foxrate_ReviewCoreIntegration_Helper_Processreviews extends Mage_Core_Help
 
     public function isError()
     {
-        $processedReviewContainer = $this->getProcessedReviews();
-        return isset($processedReviewContainer['error']);
+        $reviewPage = $this->getProcessedReviews();
+        return isset($reviewPage['error']);
     }
 
     public function getReviewModel()

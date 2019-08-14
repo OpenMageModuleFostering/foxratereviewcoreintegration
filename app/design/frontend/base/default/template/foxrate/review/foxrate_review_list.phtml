@@ -1,0 +1,64 @@
+<?php if (isset($foxrateFiError)):?>
+    <div class="info-box"><?php echo $foxrateFiError; ?></div>
+
+<?php else:?>
+
+    <div id="userReviews">
+        <div class="box-collateral box-reviews" id="customer-reviews">
+
+            <!-- //dothis Toolbar-->
+            <dl>
+                <?php foreach ($viewHelper->getProductReviewList($productId) as $review):?>
+                    <div itemprop="review" itemscope itemtype="http://schema.org/Review">
+                        <dt>
+                            <?php echo $this->__('Review by <span itemprop="author">%s</span>', $this->htmlEscape($review->writer->name)) ?>
+                        </dt>
+                        <dd>
+                            <div class="ratings-table" itemprop="reviewRating" itemscope itemtype="http://schema.org/Rating">
+                                <!-- //dothis Stars-->
+                                <div style="float: left">
+                                    <img class="frRating-stars-small"
+                                         src="<?php echo $this->getSkinUrl('images/foxrate/' . $review->ratings->overall . "_00.png"); ?>">
+                                </div>
+                                <div style="float: left; padding-left: 20px; font-size: 0.9em">
+                                    <meta itemprop="worstRating" content = "1"/>
+                                    <span itemprop="ratingValue"><?php echo $review->ratings->overall; ?></span>/<span itemprop="bestRating">5</span>
+                                </div>
+                            </div>
+                            <div style="clear: both"></div>
+                            <?php if (!empty($review->texts->pros)): ?> <p><strong><?php echo $this->__('FOXRATE_PROS'); ?></strong><br><?php echo $review->texts->pros ?></p><?php endif; ?>
+                            <?php if (!empty($review->texts->cons)): ?><p><strong><?php echo $this->__('FOXRATE_CONS'); ?></strong><br><?php echo $review->texts->cons ?></p><?php endif; ?>
+                            <?php if (!empty($review->texts->conclusion)): ?>
+                                <p itemprop="name"><strong><?php echo $this->__('Conclusion'); ?></strong><br><?php echo $review->texts->conclusion; ?></p>
+                            <?php endif; ?>
+                            <?php if (!empty($review->texts->comment)): ?><p itemprop="description"><strong><?php echo $this->__('Comment'); ?></strong><br><?php echo $review->texts->comment; ?></p><?php endif; ?>
+                            <small class="date">
+                                <meta itemprop="datePublished" content="<?php echo $review->created->format('Y-m-d'); ?>">
+                                <?php echo $this->__('(Posted on %s)', $review->created->format('Y-m-d')); ?>
+                                </meta>
+                            </small>
+                        </dd>
+                    </div>
+                <?php endforeach; ?>
+            </dl>
+
+        </div>
+    </div>
+
+<?php if (is_array($pages) && count($pages) > 0)
+{
+    if ($pages['current']-1 > 0):    ?>
+        <div class="pageNav" onclick="loadUserRevPage(<?php echo $pages['current']-1; ?> , '<?php echo $reviewHelper->getAjaxControllerUrl(); ?>', '<?php echo $this->getFoxrateProductId(); ?>');">«</div>
+    <?php endif; ?>
+    <?php foreach ($pages as $key => $page): ?>
+    <div class="pageNav <?php if ($key == 'current') { echo 'currentPage'; } ?>"
+         onclick="loadUserRevPage(<?php echo $page; ?>, '<?php echo $reviewHelper->getAjaxControllerUrl(); ?>', '<?php echo $this->getFoxrateProductId(); ?>');"><?php echo $page ?></div>
+<?php endforeach; ?>
+    <?php if (($pages['current'] +1 <= $reviewPage->pages_count ) && ($reviewPage->pages_count  > 1)) : ?>
+    <div class="pageNav" onclick="loadUserRevPage(<?php echo $pages['current'] +1 ?>, '<?php echo $reviewHelper->getAjaxControllerUrl(); ?>', '<?php echo $this->getFoxrateProductId(); ?>');">»</div>
+<?php endif; ?>
+<?php
+}
+?>
+
+<?php endif;?>

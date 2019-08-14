@@ -1,10 +1,13 @@
 <?php
 
+/**
+ * Foxrate FI review summary helper
+ * Class Foxrate_ReviewCoreIntegration_Block_Review_Form
+ */
 class Foxrate_ReviewCoreIntegration_Block_Review_Form extends Mage_Review_Block_Form
 {
-    protected $prodRevPage;
 
-    protected $prodRevGeneral;
+    protected $reviewModel;
 
     /**
      * Render block HTML
@@ -14,18 +17,20 @@ class Foxrate_ReviewCoreIntegration_Block_Review_Form extends Mage_Review_Block_
     protected function _toHtml()
     {
         try {
-            $productid = $this->getFoxrateProductId();
+            $productId = $this->getFoxrateProductId();
+            $viewHelper = $this->getKernel()->get('rci.process_reviews');
+            $reviewPage = $viewHelper->getRawProductReviews($productId);
 
-            $processReviews = $this->getKernel()->get('rci.process_reviews');
-            $this->assign('reviewHelper', $this->getKernel()->get('rci.review_helper'));
-            $this->assign('foxrateProductReviews', $processReviews->getRawProductReviews($productid));
-            $this->assign('pages', $processReviews->getPageNav());
+            $this->assign('productId', $productId);
+            $this->assign('foxrateReviewGeneralData', $this->getKernel()->get('rci.review_totals')->getReviewTotalData($productId));
+            $this->assign('viewHelper', $viewHelper);
+            $this->assign('reviewHelper',  $this->getKernel()->get('rci.review_helper'));
+            $this->assign('reviewPage', $reviewPage);
+            $this->assign('pages', $this->getReviewModel()->getPageNav($reviewPage->pages_count, $reviewPage->current_page));
 
-            $this->assign('foxrateReviewGeneralData', $this->getKernel()->get('rci.review_totals')->getReviewTotalData($productid));
-            $this->assign('foxrateProductReviewList', $this->getKernel()->get('rci.process_reviews')->getProductReviewList($productid) );
             return parent::_toHtml();
 
-        } catch (Exception $e) {
+        } catch (Foxrate_Sdk_ApiBundle_Exception_ModuleException $e) {
             return parent::_toHtml();
         }
 
@@ -66,6 +71,16 @@ class Foxrate_ReviewCoreIntegration_Block_Review_Form extends Mage_Review_Block_
     public function getFoxrateProductId()
     {
         return $this->getEntityId();
+    }
+
+    /**
+     * Get ajax controller url
+     * @return mixed
+     */
+    public function getAjaxControllerUrl(){
+
+        return $this->getConfig()->getAjaxControllerUrl();
+
     }
 
     /**
@@ -115,8 +130,8 @@ class Foxrate_ReviewCoreIntegration_Block_Review_Form extends Mage_Review_Block_
      */
     public function getWriteReviewLink()
     {
-        $productid = $this->getFoxrateProductId();
-        return  $this->getKernel()->get('rci.review')->getWriteReviewLink($productid);
+        $productId = $this->getFoxrateProductId();
+        return  $this->getReviewModel()->getWriteReviewLink($productId);
 
     }
 
@@ -158,7 +173,7 @@ class Foxrate_ReviewCoreIntegration_Block_Review_Form extends Mage_Review_Block_
      */
     public function getSortingCriteria()
     {
-        return $this->getKernel()->get('rci.review')->getSortingCriteria();
+        return $this->getReviewModel()->getSortingCriteria();
     }
 
     /**
@@ -168,7 +183,7 @@ class Foxrate_ReviewCoreIntegration_Block_Review_Form extends Mage_Review_Block_
      */
     public function calcReviewDate($date)
     {
-        return $this->getKernel()->get('rci.review')->calcReviewDate($date);
+        return $this->getReviewModel()->calcReviewDate($date);
     }
 
     private function getKernel()
@@ -184,4 +199,17 @@ class Foxrate_ReviewCoreIntegration_Block_Review_Form extends Mage_Review_Block_
     {
         return $this->getKernel()->get('shop.configuration');
     }
+
+    /**
+     * Lazy loader for review model
+     */
+    public function getReviewModel()
+    {
+        if (null == $this->reviewModel)
+        {
+            $this->reviewModel = $this->getKernel()->get('rci.review');
+        }
+        return $this->reviewModel;
+    }
+
 }

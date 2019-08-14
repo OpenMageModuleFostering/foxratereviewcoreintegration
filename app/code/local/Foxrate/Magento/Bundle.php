@@ -23,8 +23,12 @@ class Foxrate_Magento_Bundle extends Foxrate_Sdk_ApiBundle_Bundle
 
     public function getFoxrate_Magento_Adapter_Config()
     {
-        //fixme. 1. we should not have Shop name here! 2. if non existing class is passed, nobody is angry.
         return new Foxrate_Magento_Adapter_Config();
+    }
+
+    public function getFoxrate_Magento_Adapter_Request()
+    {
+        return new Foxrate_Magento_Adapter_Request();
     }
 
     public function getFoxrate_Magento_ShopEnvironment()
@@ -67,11 +71,6 @@ class Foxrate_Magento_Bundle extends Foxrate_Sdk_ApiBundle_Bundle
     public function getFoxrate_Magento_Assets()
     {
         return new Foxrate_Magento_Assets();
-    }
-
-    public function getFoxrate_Magento_Adapter_Request()
-    {
-        return new Foxrate_Magento_Adapter_Request();
     }
 
     public function getFoxrate_Magento_Logger()
