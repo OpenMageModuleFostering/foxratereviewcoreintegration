@@ -1247,14 +1247,14 @@
 			
 			
 			if( settings.targetElement ){
-				
-				if( $.browser.webkit ){
+
+				/*if( typeof $.browser.webkit !== 'undefined' ){
 					var animateObj = $("body");
 				} else {
 					var animateObj = $("html");
-				}
-				
-				animateObj.animate({ 
+				}*/
+
+                $("body,html").animate({
 					scrollTop : $(settings.targetElement).offset().top 
 				}, settings.animationSpeed, settings.typeOfAnimation, function(){
 					// Animation complete.
