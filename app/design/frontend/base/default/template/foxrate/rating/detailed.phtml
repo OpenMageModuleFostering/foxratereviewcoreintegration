@@ -39,8 +39,8 @@ if ($reviewTotals->getReviewsCount()): ?>
 <?php elseif ($this->getDisplayIfEmpty()): ?>
     <p class="no-rating"><a href="<?php echo $this->getReviewsUrl() ?>#review-form"><?php echo $this->__('Be the first to review this product') ?></a></p>
 <?php endif; ?>
-
 <script type="text/javascript" src="<?php echo $this->getSkinUrl('js/foxrate/jquery.1.8.3.min.js')?>"></script>
+<script>jQuery.noConflict();</script>
 <script type="text/javascript" src="<?php echo $this->getSkinUrl('js/foxrate/foxrateProdRev.js')?>"></script>
 <script type="text/javascript" src="<?php echo $this->getSkinUrl('js/foxrate/modalbox/js/jquery.modalbox-1.4.1.js')?>"></script>
 <link rel="stylesheet" type="text/css" href="<?php echo $this->getSkinUrl('js/foxrate/modalbox/css/jquery.modalbox.css')?>" media="all" />

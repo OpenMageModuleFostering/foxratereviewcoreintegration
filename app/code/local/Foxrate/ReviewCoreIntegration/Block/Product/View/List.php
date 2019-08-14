@@ -1,10 +1,6 @@
 <?php
 
 
-/**
- * Show review summary and review list on review page.
- * Class Foxrate_ReviewCoreIntegration_Block_Product_View_List
- */
 class Foxrate_ReviewCoreIntegration_Block_Product_View_List extends Mage_Review_Block_Product_View_List
 {
 
@@ -21,24 +17,17 @@ class Foxrate_ReviewCoreIntegration_Block_Product_View_List extends Mage_Review_
 
     protected function _toHtml()
     {
-        try {
-            $productId = $this->getFoxrateProductId();
-            $processReviews = $this->getKernel()->get('rci.process_reviews');
-            $reviews = $processReviews->getRawProductReviews($productId);
+        $productid = $this->getFoxrateProductId();
+        $processReviews = $this->getKernel()->get('rci.process_reviews');
 
-            $this->assign('foxrateReview', $this->getKernel()->get('rci.review'));
-            $this->assign('foxrateProductReviews', $processReviews->getRawProductReviews($productId));
-            $this->assign('pages', $this->getReviewModel()->getPageNav($reviews->pages_count, $reviews->current_page));
-            $this->assign('foxrateReviewGeneralData', $this->getKernel()->get('rci.review_totals')->getReviewTotalData($productId));
+        $this->assign('foxrateReview', $this->getKernel()->get('rci.review'));
+        $this->assign('foxrateProductReviews', $processReviews->getRawProductReviews($productid));
+        $this->assign('pages', $processReviews->getPageNav());
+        $this->assign('foxrateReviewGeneralData', $this->getKernel()->get('rci.review_totals')->getReviewTotalData($productid));
 
-            $this->setTemplate('foxrate/review/product/view/foxrate_review_page.phtml');
-            return parent::_toHtml();
+        $this->setTemplate('foxrate/review/product/view/foxrate_list.phtml');
+        return parent::_toHtml();
 
-        } catch (Foxrate_Sdk_ApiBundle_Exception_ReviewsNotFoundException $e) {
-            $this->assign('foxrateFiError', $e->getMessage());
-            return parent::_toHtml();
-
-        }
     }
 
     /**

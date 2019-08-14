@@ -40,19 +40,18 @@ if(empty($processedReviewContainer)) { ?>
             </dl>
         <?php endif;?>
     </div>
-
     <?php
     if (is_array($pages) && count($pages) > 0)
     {
         if ($pages['current']-1 > 0):    ?>
-            <div class="pageNav" onclick="loadUserRevPage(<?php echo $pages['current']-1; ?> , '<?php $reviewHelper->getAjaxControllerUrl(); ?>', '<?php echo $this->getFoxrateProductId(); ?>');">«</div>
+            <div class="pageNav" onclick="loadUserRevPage(<?php echo $pages['current']-1; ?> , '<?php echo $reviewHelper->getAjaxControllerUrl(); ?>', '<?php echo $this->getFoxrateProductId(); ?>');">«</div>
         <?php endif; ?>
         <?php foreach ($pages as $key => $page): ?>
         <div class="pageNav <?php if ($key == 'current') { echo 'currentPage'; } ?>"
              onclick="loadUserRevPage(<?php echo $page; ?>, '<?php echo $reviewHelper->getAjaxControllerUrl(); ?>', '<?php echo $this->getFoxrateProductId(); ?>');"><?php echo $page ?></div>
     <?php endforeach; ?>
         <?php if (($pages['current'] +1 <= $processedReviewContainer['pages_count'] ) && ($processedReviewContainer['pages_count']  > 1)) : ?>
-        <div class="pageNav" onclick="loadUserRevPage(<?php echo $pages['current'] +1 ?>, '<?php echo $reviewHelper->getFoxrateShopUrl(); ?>', '<?php echo $this->getFoxrateProductId(); ?>');">»</div>
+        <div class="pageNav" onclick="loadUserRevPage(<?php echo $pages['current'] +1 ?>, '<?php echo $reviewHelper->getAjaxControllerUrl(); ?>', '<?php echo $this->getFoxrateProductId(); ?>');">»</div>
     <?php endif; ?>
     <?php
     }

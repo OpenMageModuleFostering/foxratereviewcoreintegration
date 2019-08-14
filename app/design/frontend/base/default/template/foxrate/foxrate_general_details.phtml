@@ -24,7 +24,7 @@
         <div class="rating-all">
             <div class="inset align-middle">
                 <a class='starFilter'
-                   onclick="loadUserRevPage(1, '<?php echo $reviewHelper->getFoxrateShopUrl(); ?>', '<?php  echo $this->getFoxrateProductId(); ?>', {star:<?php echo $key; ?>});"
+                   onclick="loadUserRevPage(1, '<?php echo $reviewHelper->getAjaxControllerUrl(); ?>', '<?php  echo $this->getFoxrateProductId(); ?>', {star:<?php echo $key; ?>});"
                    href="javascript:void(0)"><?php echo $key; ?> <?php echo $this->__('FOXRATE_STARS'); ?></a>
                 &nbsp;&nbsp;
             </div>
