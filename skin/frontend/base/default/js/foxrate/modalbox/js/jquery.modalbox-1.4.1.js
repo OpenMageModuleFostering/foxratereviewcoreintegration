@@ -1,11 +1,10 @@
 /*
-* jQuery modalBox plugin v1.4.1 <http://code.google.com/p/jquery-modalbox-plugin/>
-* @requires jQuery v1.3.2 or later 
+* MODIFIED, to match jQuery v1.11.1 version!
+* $ modalBox plugin v1.4.1 <http://code.google.com/p/jquery-modalbox-plugin/>
+* @requires $ v1.3.2 or later 
 * is released under the MIT License <http://www.opensource.org/licenses/mit-license.php> 
 */
 (function($){
-
-    var jQuery = j183.getjQuery();
     
 	// Default options
 	var defaults = {
@@ -108,7 +107,7 @@
 		callFunctionAfterHide : function(){}, // call a custom function after layer is closed
 		
 		debug : false,
-		debugOuputMessagePrefix : '[jQuery modalBox plugin] '
+		debugOuputMessagePrefix : '[$ modalBox plugin] '
 		
 	};
 	
@@ -133,7 +132,7 @@
 			</head>
 		*/
 		
-		defaults = jQuery.extend({}, defaults, modalboxGlobalDefaults);
+		defaults = $.extend({}, defaults, modalboxGlobalDefaults);
 		
 	} catch(error) {}
 	
@@ -147,7 +146,7 @@
 			
 			
 			// merge the plugin defaults with custom options
-			var globaloptions = jQuery.extend({}, defaults, globaloptions);
+			var globaloptions = $.extend({}, defaults, globaloptions);
 			
 			
 			
@@ -166,7 +165,7 @@
 				} else if ( globaloptions.directCall["element"] ){
 					openModalBox({
 						type	: 'static',
-						data	: jQuery( globaloptions.directCall["element"] ).html()
+						data	: $( globaloptions.directCall["element"] ).html()
 					});
 				} else if ( globaloptions.directCall["image"] ){
 					openModalBox({
@@ -182,19 +181,17 @@
 			
 			/************ initializeModalBox - BEGIN ************/
 			var doNotBindEventsOnWindowResize = false;
-			jQuery(window).resize(function(){
+			$(window).resize(function(){
 				doNotBindEventsOnWindowResize = true;
 			});
 			
 			if( !doNotBindEventsOnWindowResize ){
-				jQuery(
+				$(
 					this
-				).die(
-					"click"
-				).live("click", function(event){
+				).bind("click", function(event){
 					prepareModalbox({
 						event : event,
-						element : jQuery(this)
+						element : $(this)
 					});
 				});
 			}
@@ -206,7 +203,7 @@
 			function prepareModalbox(settings){
 				
 				
-				var settings = jQuery.extend({// default settings
+				var settings = $.extend({// default settings
 					event : null,
 					element : null,
 					doNotOpenModalBoxContent : false,
@@ -315,7 +312,7 @@
 						
 						source = '';
 						
-						data = jQuery(
+						data = $(
 							globaloptions.getStaticContentFrom
 						).html();
 						
@@ -357,7 +354,7 @@
 			function ajaxRedirect(settings){
 
 
-				var settings = jQuery.extend({// default settings
+				var settings = $.extend({// default settings
 					ar_XMLHttpRequest	: null,
 					ar_textStatus		: null,
 					ar_errorThrown		: null,
@@ -414,7 +411,7 @@
 				
 				function addErrorMessage(settings){
 
-					var settings = jQuery.extend({// default settings
+					var settings = $.extend({// default settings
 						errorMessage 	: null,
 						targetContainer	: null
 					}, settings || {} );
@@ -425,7 +422,7 @@
 							settings.errorMessage + 
 						'</div></div>';
 						
-						jQuery(
+						$(
 							settings.targetContainer
 						).removeAttr(
 							"style"
@@ -433,9 +430,9 @@
 							errorMessageContainer 
 						);
 						
-						if( jQuery(settings.targetContainer).parents(globaloptions.selectorModalbox).length > 0 ){
+						if( $(settings.targetContainer).parents(globaloptions.selectorModalbox).length > 0 ){
 							
-							jQuery(
+							$(
 								globaloptions.selectorModalBoxAjaxLoader
 							).remove();
 							
@@ -459,7 +456,7 @@
 			/************ openModalBox - BEGIN ************/
 			function openModalBox(settings){
 			
-				var settings = jQuery.extend({
+				var settings = $.extend({
 					type : null,
 					element : null,
 					source : null,
@@ -492,7 +489,7 @@
 				
 				function initCloseEvents(){
 					
-					jQuery(
+					$(
 						
 						!globaloptions.disablingClickToClose ? (
 							globaloptions.selectorModalbox + " " + globaloptions.selectorModalBoxBodyContent + " " + globaloptions.selectorCloseModalBox + ", " + 
@@ -513,7 +510,7 @@
 				function initCloseEventsOfFadingLayer(){
 					
 					if( !globaloptions.disablingClickToClose && !globaloptions.disablingTheOverlayClickToClose ){
-						jQuery(
+						$(
 							globaloptions.selectorModalBoxFaderLayer
 						).unbind(
 							"click"
@@ -538,7 +535,7 @@
 				
 				
 				
-				jQuery(
+				$(
 					globaloptions.selectorModalboxPreCacheContainer
 				).remove();
 				
@@ -556,15 +553,15 @@
 					
 					if( settings.element ){
 						
-						if( jQuery(settings.element).hasClass("large") ){
+						if( $(settings.element).hasClass("large") ){
 							settings.setModalboxClassName += 'large';
-						} else if( jQuery(settings.element).hasClass("medium") ){
+						} else if( $(settings.element).hasClass("medium") ){
 							settings.setModalboxClassName += 'medium';
-						} else if( jQuery(settings.element).hasClass("small") ){
+						} else if( $(settings.element).hasClass("small") ){
 							settings.setModalboxClassName += 'small';
 						}
 						
-						if( jQuery(settings.element).hasClass("emphasis") ){
+						if( $(settings.element).hasClass("emphasis") ){
 							settings.setModalboxClassName += ' emphasis';
 						}
 					}
@@ -596,9 +593,9 @@
 					
 					
 					/*  create Modalbox first - BEGIN */
-					if( jQuery(globaloptions.selectorModalbox).length == 0 ){
+					if( $(globaloptions.selectorModalbox).length == 0 ){
 						
-						jQuery(
+						$(
 							"body"
 						).append(
 							methods.modalboxBuilder({
@@ -614,7 +611,7 @@
 					/*  create Modalbox first - END */
 					
 					
-					var modalboxBodyContentContainerbj = jQuery(
+					var modalboxBodyContentContainerbj = $(
 						globaloptions.selectorModalbox + ' ' + globaloptions.selectorModalBoxBodyContent
 					);
 					
@@ -625,7 +622,7 @@
 							
 							case 'static': {
 								
-								jQuery(
+								$(
 									globaloptions.selectorModalBoxAjaxLoader
 								).hide();
 								
@@ -641,14 +638,14 @@
 								
 							} case 'ajax': {
 							
-								jQuery.ajax({
+								$.ajax({
 									type : globaloptions.ajax_type,
 									url	: settings.source,
 									data : settings.data,
 									contentType : globaloptions.ajax_contentType,
 									success	: function(data, textStatus){
 										
-										jQuery(
+										$(
 											globaloptions.selectorModalBoxAjaxLoader
 										).fadeOut("fast", function(){
 											
@@ -677,7 +674,7 @@
 								
 							} case 'image': {
 								
-								jQuery(
+								$(
 									'<img class="modalBoxImagePreload" src="' + settings.image + '" />'
 								).load(function(response, status, xhr){
 									
@@ -689,7 +686,7 @@
 										
 									} else {
 										
-										var imageObj = jQuery(this);
+										var imageObj = $(this);
 										
 										if( settings.imageLink ){
 											
@@ -699,7 +696,7 @@
 												'<a class="' + prepareNameOfImageLink + '" href="' + settings.imageLink + '" title="' + settings.imageLink + '"></a>'
 											);
 											
-											jQuery(
+											$(
 												globaloptions.selectorModalbox + " a" + globaloptions.selectorModalBoxImageLink
 											).die(
 												"click"
@@ -726,7 +723,7 @@
 											});
 										}
 										
-										jQuery(
+										$(
 											globaloptions.selectorModalBoxAjaxLoader
 										).fadeOut("fast", function(){
 											
@@ -797,14 +794,14 @@
 			function showFadingLayer(settings){
 				
 				
-				var settings = jQuery.extend({//defaults
+				var settings = $.extend({//defaults
 					isResized : false,
 					setStyleOfFadingLayer : '',
 					callFunctionAfterShow : null
 				}, settings || {} );
 				
 				
-				if ( jQuery(globaloptions.selectorModalBoxFaderLayer).length == 0 ) {
+				if ( $(globaloptions.selectorModalBoxFaderLayer).length == 0 ) {
 					
 					/* append fading container first - BEGIN */
 					if( globaloptions.setTypeOfFadingLayer == "white" ){
@@ -821,7 +818,7 @@
 						replaceValue : globaloptions.selectorModalBoxFaderLayer
 					});
 					
-					jQuery(
+					$(
 						"body"
 					).append(
 						'<div id="' + prepareNameOfFadingLayer + '" style="' + settings.setStyleOfFadingLayer + '"></div>'
@@ -830,7 +827,7 @@
 					
 					
 					/* getGeneratedFaderObj - BEGIN */
-					var getGeneratedFaderObj = jQuery(
+					var getGeneratedFaderObj = $(
 						globaloptions.selectorModalBoxFaderLayer
 					);
 					
@@ -877,7 +874,7 @@
 					};
 					
 					
-					jQuery(window).resize(function(){
+					$(window).resize(function(){
 						if( getGeneratedFaderObj.is(':visible') ){
 							methods.center({
 								
@@ -928,19 +925,19 @@
 				
 				Example / External:
 				-----------------------------
-				jQuery.fn.modalBox('close');
+				$.fn.modalBox('close');
 			*/
 			
 			
 			// merge the plugin defaults with custom settings
-			var settings = jQuery.extend({}, defaults, settings);
+			var settings = $.extend({}, defaults, settings);
 			
 			
 			if( settings.selectorModalBoxFaderLayer && settings.selectorModalbox ){
 			
 				settings.callFunctionBeforeHide();
 				
-				var containerObj = jQuery(settings.selectorModalBoxFaderLayer + ', ' + settings.selectorModalbox);
+				var containerObj = $(settings.selectorModalBoxFaderLayer + ', ' + settings.selectorModalbox);
 				
 				if( settings.setTypeOfFadingLayer == "disable" ){
 					settings.effectType_hide_fadingLayer[0] = ""; // reset to default
@@ -952,8 +949,8 @@
 						switch ( settings.effectType_hide_modalBox[0] ){
 							case 'fade' : {
 								
-								jQuery(settings.selectorModalbox).fadeOut( settings.effectType_hide_modalBox[1], function(){
-									jQuery(settings.selectorModalBoxFaderLayer).fadeOut( settings.effectType_hide_fadingLayer[1], function(){
+								$(settings.selectorModalbox).fadeOut( settings.effectType_hide_modalBox[1], function(){
+									$(settings.selectorModalBoxFaderLayer).fadeOut( settings.effectType_hide_fadingLayer[1], function(){
 										removeLayer( containerObj );
 									});
 								});
@@ -962,9 +959,9 @@
 								
 							} default : {
 								
-								jQuery(settings.selectorModalbox).hide();
+								$(settings.selectorModalbox).hide();
 								
-								jQuery(settings.selectorModalBoxFaderLayer).fadeOut( settings.effectType_hide_fadingLayer[1], function(){
+								$(settings.selectorModalBoxFaderLayer).fadeOut( settings.effectType_hide_fadingLayer[1], function(){
 									removeLayer( containerObj );
 								});
 								
@@ -979,7 +976,7 @@
 						switch ( settings.effectType_hide_modalBox[0] ){
 							case 'fade' : {
 								
-								jQuery(settings.selectorModalbox).fadeOut( settings.effectType_hide_modalBox[1], function(){
+								$(settings.selectorModalbox).fadeOut( settings.effectType_hide_modalBox[1], function(){
 									removeLayer( containerObj );
 								});
 								
@@ -1023,24 +1020,24 @@
 				
 				Example / External:
 				-----------------------------
-				jQuery.fn.modalBox('center');
+				$.fn.modalBox('center');
 			*/
 			
-			var settings = jQuery.extend({
+			var settings = $.extend({
 				isResized : false,
 				callFunctionAfterShow : null
 			}, settings || {} );
 			
 			// merge the plugin defaults with custom settings
-			settings = jQuery.extend( {}, defaults, settings);
+			settings = $.extend( {}, defaults, settings);
 			
 			
-			var modalboxContainerObj = jQuery(
+			var modalboxContainerObj = $(
 				settings.selectorModalbox
 			);
 			
 			
-			if( jQuery(settings.selectorModalboxPreCacheContainer).length == 0 && modalboxContainerObj.length > 0 ){
+			if( $(settings.selectorModalboxPreCacheContainer).length == 0 && modalboxContainerObj.length > 0 ){
 				
 				
 				var scrollToTop = false;
@@ -1051,12 +1048,12 @@
 				
 				var setPositionTop = 0;
 				var setPositionLeft = parseInt( 
-					jQuery(window).width() - getModalboxContainerWidth 
+					$(window).width() - getModalboxContainerWidth 
 				) / 2;
 				
 				
-				if( jQuery("body a.modalBoxTopLink").length == 0 ){
-					jQuery(
+				if( $("body a.modalBoxTopLink").length == 0 ){
+					$(
 						"body"
 					).prepend(
 						'<a class="modalBoxTopLink"></a>'
@@ -1082,7 +1079,7 @@
 				if( settings.positionTop ){
 					
 					setPositionTop = parseInt( 
-						jQuery(window).height() - getModalboxContainerHeight
+						$(window).height() - getModalboxContainerHeight
 					);
 					
 					if( setPositionTop > parseInt( settings.positionTop ) ){
@@ -1093,7 +1090,7 @@
 				
 				} else {
 					
-					setPositionTop = parseInt( jQuery(window).height() - getModalboxContainerHeight - 70 ) / 2;
+					setPositionTop = parseInt( $(window).height() - getModalboxContainerHeight - 70 ) / 2;
 					
 					if( setPositionTop <= 0 ){
 					
@@ -1157,7 +1154,7 @@
 								
 							}).fadeIn( settings.effectType_show_modalBox[1] , function(){
 							
-								jQuery(
+								$(
 									this
 								).addClass(
 									"modalboxFadingSuccessfully"
@@ -1206,11 +1203,11 @@
 				
 				Example / External:
 				-----------------------------
-				jQuery.fn.modalBox('close');
+				$.fn.modalBox('close');
 			*/
 			
 			// merge the plugin defaults with custom settings
-			var settings = jQuery.extend( {}, defaults, settings);
+			var settings = $.extend( {}, defaults, settings);
 			
 			if( settings.selectorModalBoxBodyContent ){
 				
@@ -1218,7 +1215,7 @@
 					replaceValue: settings.selectorModalBoxAjaxLoader
 				});
 				
-				jQuery(
+				$(
 					settings.selectorModalBoxBodyContent
 				).html(
 					'<div id="' + prepareNameOfAjaxLoader + '">' + settings.localizedStrings["messageAjaxLoader"] + '</div>'
@@ -1241,7 +1238,7 @@
 				});
 			*/
 			
-			var settings = jQuery.extend({// default settings
+			var settings = $.extend({// default settings
 				targetElement	: "a.modalBoxTopLink",
 				typeOfAnimation	: 'swing', // options: linear, swing, easing
 				animationSpeed	: 800,
@@ -1250,15 +1247,15 @@
 			
 			
 			if( settings.targetElement ){
-				
-				if( jQuery.browser.webkit ){
-					var animateObj = jQuery("body");
+
+				/*if( typeof $.browser.webkit !== 'undefined' ){
+					var animateObj = $("body");
 				} else {
-					var animateObj = jQuery("html");
-				}
-				
-				animateObj.animate({ 
-					scrollTop : jQuery(settings.targetElement).offset().top 
+					var animateObj = $("html");
+				}*/
+
+                $("body,html").animate({
+					scrollTop : $(settings.targetElement).offset().top 
 				}, settings.animationSpeed, settings.typeOfAnimation, function(){
 					// Animation complete.
 					settings.callAfterSuccess();
@@ -1284,7 +1281,7 @@
 			*/
 			
 			
-			var settings = jQuery.extend({
+			var settings = $.extend({
 				src : null,
 				returnValue : false
 			}, settings || {} );
@@ -1317,7 +1314,7 @@
 			*/
 			
 			
-			var settings = jQuery.extend({
+			var settings = $.extend({
 				src : null,
 				splitValuePrefix : "link[",
 				splitValueSuffix : "]",
@@ -1351,7 +1348,7 @@
 		/********** cleanupSelectorName - BEGIN **********/
 		cleanupSelectorName : function(settings){
 			
-			var settings = jQuery.extend({
+			var settings = $.extend({
 				replaceValue : ''
 			}, settings || {} );
 			
@@ -1372,7 +1369,7 @@
 			
 			//inspired by http://aktuell.de.selfhtml.org/artikel/javascript/draganddrop/
 			
-			var settings = jQuery.extend({
+			var settings = $.extend({
 				dragObject : null,
 				dragObjectPosX : 0,
 				dragObjectPosY : 0,
@@ -1381,7 +1378,7 @@
 			}, settings || {} );
 			
 			// merge the plugin defaults with custom settings
-			settings = jQuery.extend({}, defaults, settings);
+			settings = $.extend({}, defaults, settings);
 			
 			
 			function moveObject(obj) {
@@ -1398,7 +1395,7 @@
 			}
 
 			
-			jQuery(
+			$(
 				document
 			).mousemove(function(event){
 				
@@ -1406,7 +1403,7 @@
 				settings.documentPosY = event.pageY;
 				
 				if (settings.dragObject) {
-					jQuery(settings.dragObject).css({
+					$(settings.dragObject).css({
 						left : (settings.documentPosX - settings.dragObjectPosX) + "px",
 						top : (settings.documentPosY - settings.dragObjectPosY) + "px"
 					});
@@ -1414,7 +1411,7 @@
 			});
 			
 			
-			jQuery(
+			$(
 				settings.selectorModalbox + " .modalboxStyleContainer_surface_top, " + 
 				settings.selectorModalbox + " .modalboxStyleContainer_surface_bottom"
 			).unbind(
@@ -1423,13 +1420,13 @@
 				
 				if (event.type == 'mousedown') {
 					
-					jQuery(
+					$(
 						settings.selectorModalbox
 					).unbind(
 						'mousemove mouseup' // unbind events before init
 					).bind('mousemove mouseup', function(event){
 						
-						var thisObj = jQuery(this);
+						var thisObj = $(this);
 						
 						if( thisObj.is(":visible") ){
 							
@@ -1465,7 +1462,7 @@
 		addAjaxUrlParameter : function(settings){
 
 
-			var settings = jQuery.extend({// default settings
+			var settings = $.extend({// default settings
 				currentURL 			: '',
 				addParameterName 	: 'ajaxContent',
 				addParameterValue 	: 'true'
@@ -1496,10 +1493,10 @@
 		precache : function(settings){
 			
 			// merge the plugin defaults with custom settings
-			var settings = jQuery.extend({}, defaults, settings);
+			var settings = $.extend({}, defaults, settings);
 			
 			if( settings.selectorModalboxPreCacheContainer ){
-				if( jQuery(settings.selectorModalboxPreCacheContainer).length == 0 ){
+				if( $(settings.selectorModalboxPreCacheContainer).length == 0 ){
 					
 					var prepareNameOfPreCacheContainer = methods.cleanupSelectorName({
 						replaceValue : settings.selectorModalboxPreCacheContainer
@@ -1512,9 +1509,9 @@
 						preCacheContainer += createModalboxContainer;
 					preCacheContainer += '</div>';
 					
-					jQuery("body").append(preCacheContainer);
+					$("body").append(preCacheContainer);
 					
-					jQuery(settings.selectorModalbox).show();
+					$(settings.selectorModalbox).show();
 				}
 			}
 			
@@ -1526,13 +1523,13 @@
 		/********** modalboxBuilder - BEGIN **********/
 		modalboxBuilder : function(settings){
 			
-			var settings = jQuery.extend({
+			var settings = $.extend({
 				customStyles : ''
 			}, settings || {} );
 		
 			
 			// merge the plugin defaults with custom options
-			settings = jQuery.extend({}, defaults, settings);
+			settings = $.extend({}, defaults, settings);
 			
 			
 			var prepareNameOfModalboxContainer = methods.cleanupSelectorName({
@@ -1600,13 +1597,13 @@
 				</script>
 			*/
 			
-			var settings = jQuery.extend({//default settings
+			var settings = $.extend({//default settings
 				msg : null
 			}, settings || {} );
 			
 			
 			// merge the plugin defaults with custom options
-			settings = jQuery.extend({}, defaults, settings);
+			settings = $.extend({}, defaults, settings);
 			
 			
 			if( settings.debug && settings.msg && ( ("console" in window) && ("firebug" in console) ) ){
@@ -1643,21 +1640,21 @@
 	};
 	
 	
-	jQuery.fn.modalBox = function( method ) {
+	$.fn.modalBox = function( method ) {
 		// Method calling logic
 		if ( methods[method] ) {
 			return methods[ method ].apply( this, Array.prototype.slice.call( arguments, 1 ));
 		} else if ( typeof method === 'object' || ! method ) {
 			return methods.init.apply( this, arguments );
 		} else {
-			jQuery.error( 'Method ' +	method + ' does not exist on jQuery.modalBox' );
+			$.error( 'Method ' +	method + ' does not exist on $.modalBox' );
 		}		
 	};
-	
-	
-		jQuery(document).ready(function(){//default Initializing
-		jQuery.fn.modalBox("precache");
-		jQuery(".openmodalbox").modalBox({
+
+
+    $(document).ready(function(){//default Initializing
+        $.fn.modalBox("precache");
+        $(".openmodalbox").modalBox({
                 setTypeOfFaderLayer:'black', // options: white, black, disable
                 killModalboxWithCloseButtonOnly:true, // options: true, false (close the modal box with close button only),
                 setStylesOfFaderLayer:{// define the opacity and color of fader layer here
@@ -1673,4 +1670,4 @@
 	});
 
 	
-})(j183.getjQuery());
+})($jFi);
