@@ -1,0 +1,8 @@
+<config>
+    <modules>
+        <Foxrate_ReviewCoreIntegration>
+            <active>true</active>
+            <codePool>local</codePool>
+        </Foxrate_ReviewCoreIntegration>
+    </modules>
+</config>

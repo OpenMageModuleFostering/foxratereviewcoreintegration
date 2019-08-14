@@ -1,0 +1,191 @@
+<config>
+    <modules>
+        <Foxrate_ReviewCoreIntegration>
+            <version>0.0.0</version>
+        </Foxrate_ReviewCoreIntegration>
+    </modules>
+
+    <admin>
+        <!--
+            Here we are telling the Magento router to look for the controllers in the Super_Awesome_controllers_Adminhtml before we look in the
+            Mage_Adminhtml module for all urls that begin with /admin/controller_name
+         -->
+        <routers>
+            <adminhtml>
+                <args>
+                    <modules>
+                        <foxrate before="Mage_Adminhtml">Foxrate_ReviewCoreIntegration_Adminhtml</foxrate>
+                    </modules>
+                </args>
+                <args>
+                    <modules>
+                        <Foxrate_ReviewCoreIntegration after="Mage_Adminhtml">Foxrate_ReviewCoreIntegration</Foxrate_ReviewCoreIntegration>
+                    </modules>
+                </args>
+            </adminhtml>
+            <reviewcoreintegration>
+                <use>admin</use>
+                <args>
+                    <module>Foxrate_ReviewCoreIntegration</module>
+                    <frontName>foxrateadmin</frontName>
+                </args>
+            </reviewcoreintegration>
+        </routers>
+    </admin>
+
+    <frontend>
+        <layout>
+            <updates>
+                <reviewcoreintegration>
+                    <file>reviewcoreintegration/layout.xml</file>
+                </reviewcoreintegration>
+            </updates>
+        </layout>
+        <routers>
+            <reviewcoreintegration>
+                <use>standard</use>
+                <args>
+                    <module>Foxrate_ReviewCoreIntegration</module>
+                    <frontName>foxratereviews</frontName>
+                </args>
+            </reviewcoreintegration>
+            <reviewcoreintegration_export>
+                <use>standard</use>
+                <args>
+                    <module>Foxrate_ReviewCoreIntegration</module>
+                    <frontName>export</frontName>
+                </args>
+            </reviewcoreintegration_export>
+        </routers>
+        <translate>
+            <modules>
+                <Foxrate_ReviewCoreIntegration>
+                    <files>
+                        <default>Foxrate_ReviewCoreIntegration.csv</default>
+                    </files>
+                </Foxrate_ReviewCoreIntegration>
+            </modules>
+        </translate>
+
+        <events>
+            <core_block_abstract_to_html_after>
+                <observers>
+                    <content_template_observer>
+                        <type>singleton</type>
+                        <class>reviewcoreintegration/observer</class>
+                        <method>updateContentTemplate</method>
+                    </content_template_observer>
+                </observers>
+            </core_block_abstract_to_html_after>
+        </events>
+    </frontend>
+
+    <adminhtml>
+        <acl>
+            <resources>
+                <admin>
+                    <children>
+                        <system>
+                            <children>
+                                <config>
+                                    <children>
+                                        <reviewcoreintegration translate="title" module="reviewcoreintegration">
+                                            <title>Foxrate Review Core Integration</title>
+                                        </reviewcoreintegration>
+                                    </children>
+                                </config>
+                            </children>
+                        </system>
+                    </children>
+                </admin>
+            </resources>
+        </acl>
+        <layout>
+            <updates>
+                <reviewcoreintegration>
+                    <file>reviewcoreintegration.xml</file>
+                </reviewcoreintegration>
+            </updates>
+        </layout>
+    </adminhtml>
+
+    <global>
+        <blocks>
+            <review>
+                <rewrite>
+                    <product_view>Foxrate_ReviewCoreIntegration_Block_Product_View</product_view>
+                    <product_view_list>Foxrate_ReviewCoreIntegration_Block_Product_View_List</product_view_list>
+                    <helper>Foxrate_ReviewCoreIntegration_Block_Helper</helper>
+                    <form>Foxrate_ReviewCoreIntegration_Block_Review_Form</form>
+                </rewrite>
+            </review>
+            <rating>
+                <rewrite>
+                    <entity_detailed>Foxrate_ReviewCoreIntegration_Block_Review_Rating_Detailed</entity_detailed>
+                </rewrite>
+            </rating>
+            <catalog>
+                <rewrite>
+                    <product_list>Foxrate_ReviewCoreIntegration_Block_Product_List</product_list>
+                </rewrite>
+            </catalog>
+            <page>
+                <rewrite>
+                    <html>Foxrate_ReviewCoreIntegration_Page_Block_Html</html>
+                </rewrite>
+            </page>
+        </blocks>
+
+        <models>
+            <reviewcoreintegration>
+                <class>Foxrate_ReviewCoreIntegration_Model</class>
+            </reviewcoreintegration>
+        </models>
+
+        <helpers>
+            <reviewcoreintegration>
+                <class>Foxrate_ReviewCoreIntegration_Helper</class>
+            </reviewcoreintegration>
+        </helpers>
+
+        <models>
+            <catalog>
+                <rewrite>
+                    <product>Foxrate_ReviewCoreIntegration_Model_Product</product>
+                </rewrite>
+            </catalog>
+        </models>
+
+    </global>
+
+    <default>
+        <reviewcoreintegration>
+            <foxrateReviewCoreIntegration>
+                <fox_api_username>-</fox_api_username>
+                <fox_api_password>-</fox_api_password>
+            </foxrateReviewCoreIntegration>
+            <foxrateReviewCoreIntegrationConf>
+                <reviews_per_page>10</reviews_per_page>
+                <summary>yes</summary>
+                <sort_by>date</sort_by>
+                <sort_order>desc</sort_order>
+                <order_rich_snippet>1</order_rich_snippet>
+                <rich_snippet_active>1</rich_snippet_active>
+                <catalog_display>1</catalog_display>
+                <catalog_tooltip>0</catalog_tooltip>
+                <write_review>1</write_review>
+                <page>1</page>
+                <last_product_review_import>0</last_product_review_import>
+            </foxrateReviewCoreIntegrationConf>
+        </reviewcoreintegration>
+
+    </default>
+    <crontab>
+        <jobs>
+            <reviewcoreintegration_import>
+                <schedule><cron_expr>0 */7 * * *</cron_expr></schedule>
+                <run><model>reviewcoreintegration/observer::importProductReviews</model></run>
+            </reviewcoreintegration_import>
+        </jobs>
+    </crontab>
+</config>

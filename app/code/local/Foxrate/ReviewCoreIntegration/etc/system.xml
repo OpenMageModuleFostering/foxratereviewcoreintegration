@@ -1,0 +1,143 @@
+<config>
+    <sections>
+        <reviewcoreintegration translate="label">
+            <label>Foxrate</label>
+            <class>separator-top</class>
+            <tab>sales</tab>
+            <sort_order>10000</sort_order>
+            <show_in_default>1</show_in_default>
+            <show_in_website>1</show_in_website>
+            <show_in_store>1</show_in_store>
+            <groups>
+                <foxrateReviewCoreIntegration translate="label">
+                    <label>Foxrate API</label>
+                    <sort_order>10</sort_order>
+                    <show_in_default>1</show_in_default>
+                    <show_in_website>1</show_in_website>
+                    <show_in_store>1</show_in_store>
+                    <fields>
+                        <fox_api_username translate="label">
+                            <label>Foxrate API Username</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>1</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <backend_model>reviewcoreintegration/config_credentials</backend_model>
+                        </fox_api_username>
+                    </fields>
+                    <fields>
+                        <fox_api_password translate="label">
+                            <label>Foxrate API Password</label>
+                            <frontend_type>password</frontend_type>
+                            <sort_order>2</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <backend_model>reviewcoreintegration/config_credentials</backend_model>
+                        </fox_api_password>
+                    </fields>
+                </foxrateReviewCoreIntegration>
+            </groups>
+        </reviewcoreintegration>
+        <reviewcoreintegration translate="label">
+            <label>Foxrate Core Integration</label>
+            <class>separator-top</class>
+            <tab>sales</tab>
+            <sort_order>10000</sort_order>
+            <show_in_default>1</show_in_default>
+            <show_in_website>1</show_in_website>
+            <show_in_store>1</show_in_store>
+            <groups>
+                <foxrateReviewCoreIntegrationConf translate="label">
+                    <label>Configuration</label>
+                    <sort_order>20</sort_order>
+                    <show_in_default>1</show_in_default>
+                    <show_in_website>1</show_in_website>
+                    <show_in_store>1</show_in_store>
+                    <fields>
+                        <reviews_per_page translate="label">
+                            <label>Reviews per page</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>3</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <backend_model>reviewcoreintegration/config_settings</backend_model>
+                        </reviews_per_page>
+                    </fields>
+                    <fields>
+                        <sort_by translate="label">
+                            <label>Sort by</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>4</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <backend_model>reviewcoreintegration/config_settings</backend_model>
+                        </sort_by>
+                    </fields>
+                    <fields>
+                        <sort_order translate="label">
+                            <label>Sort order</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>5</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <backend_model>reviewcoreintegration/config_settings</backend_model>
+                        </sort_order>
+                    </fields>
+                    <fields>
+                        <shop_id translate="label">
+                            <label>Shop ID</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>6</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <backend_model>reviewcoreintegration/config_settings</backend_model>
+                        </shop_id>
+                    </fields>
+                    <fields>
+                        <seller_id translate="label">
+                            <label>Seller ID</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>7</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <backend_model>reviewcoreintegration/config_settings</backend_model>
+                        </seller_id>
+                    </fields>
+                    <fields>
+                        <rich_snippet_active translate="label">
+                            <label>Is rich snippet active?</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>8</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <backend_model>reviewcoreintegration/config_settings</backend_model>
+                        </rich_snippet_active>
+                    </fields>
+                    <fields>
+                        <write_review translate="label">
+                            <label>Is write review link active?</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>9</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <backend_model>reviewcoreintegration/config_settings</backend_model>
+                        </write_review>
+                    </fields>
+                </foxrateReviewCoreIntegrationConf>
+
+
+            </groups>
+        </reviewcoreintegration>
+    </sections>
+</config>
