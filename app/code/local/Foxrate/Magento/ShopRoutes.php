@@ -10,8 +10,8 @@ class Foxrate_Magento_ShopRoutes implements  Foxrate_Sdk_ApiBundle_Resources_Sho
     const API_CONTROLLER = 'Foxrate_Sdk_ApiBundle_Controllers_Communicate';
 
     public $routesMap = array(
-        'connection_test' => 'connectionTest',
-        'check' => 'getOrders'
+        'connection_test' => array('Foxrate_Sdk_ApiBundle_Controllers_Communicate', 'connectionTest'),
+        'check' => array('Foxrate_Sdk_ApiBundle_Controllers_Communicate', 'getOrders'),
     );
 
     public function getRoutes()
@@ -22,5 +22,19 @@ class Foxrate_Magento_ShopRoutes implements  Foxrate_Sdk_ApiBundle_Resources_Sho
     public function getController()
     {
         return self::API_CONTROLLER;
+    }
+    
+    public function getRoutesMap()
+    {
+        return $this->routesMap;
+    }
+
+    /**
+     * Get Default route
+     * @return array
+     */
+    public function getDefaultRoute()
+    {
+        throw new Exception('No route found', 404);
     }
 }

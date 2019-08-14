@@ -1,7 +1,7 @@
 <config>
     <modules>
         <Foxrate_ReviewCoreIntegration>
-            <version>3.5.30</version>
+            <version>3.5.35</version>
         </Foxrate_ReviewCoreIntegration>
     </modules>
 

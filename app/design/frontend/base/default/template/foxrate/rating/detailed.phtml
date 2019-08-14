@@ -3,8 +3,9 @@ if ($reviewTotals->getReviewsCount()): ?>
     <div class="ratings">
         <? if ($reviewTotals->getTotalReviews() > 0): ?>
             <div class="rating-box">
-                <?php var_dump($ratingHelper);
-                echo $ratingHelper->getRatingStars($this->getEntityId());?>
+                <?php
+                    echo $ratingHelper->getRatingStars($this->getEntityId());
+                ?>
             </div>
             <br/>
         <? endif; ?>
