@@ -18,33 +18,23 @@ class Foxrate_ReviewCoreIntegration_Block_Review_Rating_Detailed extends Mage_Co
 
     protected function _toHtml()
     {
+        $entityId = $this->getEntityId();
+
         //check empty reviews
-        try {
-            $this->reviewTotalsModel = $this->getKernel()->get('rci.review_totals');
-            $this->reviewTotalsModel->setProductId($this->getEntityId());
-            $this->reviewTotalsData = $this->reviewTotalsModel->getReviewTotalData($this->getEntityId());
+        $this->reviewTotalsData = $this->reviewTotalsModel()->getReviewTotalData($entityId);
 
-            $this->assign('reviewTotals', $this->reviewTotalsModel);
-            $this->assign(
-                'reviewLink',
-                $this->getKernel()->get('rci.review')->getWriteReviewLink($this->getEntityId())
-            );
-            //        $this->assign('reviewLink', $this->getWriteReviewLink($this->getEntityId()));
-            $this->assign('entityId', $this->getEntityId());
-            $this->assign('ratingHelper', $this->getKernel()->get('rci.rating_helper'));
+        $this->assign('reviewTotals', $this->reviewTotalsData);
+        $this->assign('reviewLink', $this->getWriteReviewLink($entityId));
+        $this->assign('entityId', $entityId);
 
-        } catch (Foxrate_Sdk_ApiBundle_Exception_ReviewsNotFoundException $e) {
-            $this->assign('foxrateFiDebugMessage', new Foxrate_Sdk_FoxrateRCI_Error($e->getMessage(), $e->getCode()));
+        if (0 == $this->reviewTotalsModel()->getTotalReviews())
+        {
             $this->setTemplate('rating/empty.phtml');
             return parent::_toHtml();
-
-        } catch (Foxrate_Sdk_ApiBundle_Exception_Communicate $e) {
-            $this->assign('foxrateFiDebugMessage', new Foxrate_Sdk_FoxrateRCI_Error($e->getMessage(), $e->getCode()));
-            $this->getKernel()->get('shop.configuration')->log('Cannot connect to Foxrate API.');
         }
-
         return parent::_toHtml();
     }
+
 
     /**
      * Gets link to write user review
@@ -55,7 +45,7 @@ class Foxrate_ReviewCoreIntegration_Block_Review_Rating_Detailed extends Mage_Co
      */
     public function getWriteReviewLink($prodId)
     {
-        return $this->getKernel()->get('rci.review')->getWriteReviewLink($prodId);
+        return Mage::getModel('reviewcoreintegration/review')->getWriteReviewLink($prodId);
     }
 
     /**
@@ -65,10 +55,20 @@ class Foxrate_ReviewCoreIntegration_Block_Review_Rating_Detailed extends Mage_Co
     {
         if (null == $this->reviewTotalsModel)
         {
-            $this->reviewTotalsModel = $this->getKernel()->get('rci.review_totals');
+            $this->reviewTotalsModel = Mage::getModel('reviewcoreintegration/reviewtotals');
         }
 
         return $this->reviewTotalsModel;
+    }
+
+
+    /**
+     * Get Config Model
+     * @return false|Mage_Core_Model_Abstract
+     */
+    public function getConfig()
+    {
+        return Mage::getModel('reviewcoreintegration/config');
     }
 
     public function getEntityId()
@@ -76,8 +76,5 @@ class Foxrate_ReviewCoreIntegration_Block_Review_Rating_Detailed extends Mage_Co
         return Mage::app()->getRequest()->getParam('id');
     }
 
-    public function getKernel()
-    {
-        return Mage::getModel('reviewcoreintegration/kernelloader')->getKernel();
-    }
+
 }

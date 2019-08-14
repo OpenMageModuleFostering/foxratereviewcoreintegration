@@ -1,0 +1,50 @@
+<?php
+$productId = Mage::app()->getRequest()->getParam('product');
+$processedReviews = Mage::helper('reviewcoreintegration/processreviews');
+$processedReviewContainer = $processedReviews->processProductReviews($productId);
+
+if(empty($processedReviewContainer)) { ?>
+
+    <div class="error-msg">System error.</div>
+
+<?php } elseif($processedReviews->isError()) { ?>
+
+    <div class="info-box"><?php echo $processedReviewContainer['error']; ?></div>
+
+<?php } else { ?>
+<div id="userReviews">
+    <div class="box-collateral box-reviews" id="customer-reviews">
+        <?php if ($processedReviews->isEmptyReviewList()):?>
+            <h2><?php echo $this->__('Customer Reviews') ?></h2>
+            <!-- //dothis Toolbar-->
+            <dl>
+                <?php foreach ($processedReviews->getReviewList() as $review):?>
+                    <dt>
+                        <?php echo $this->__('Review by <span>%s</span>', $this->htmlEscape($review['name'])) ?>
+                    </dt>
+                    <dd>
+                        <table class="ratings-table">
+                            <col width="1" />
+                            <col />
+                            <tbody>
+                            <!-- //dothis Stars-->
+                            <img class="frRating-stars-small"
+                                 src="<?php echo $this->getSkinUrl('images/foxrate/' . $review['stars'] . "_00.png"); ?>">
+                            <br>
+
+                            </tbody>
+                        </table>
+                        <?php if (!empty($review['comment_pros'])): ?> <p><strong><?php echo $this->__('FOXRATE_PROS'); ?></strong><br><?php echo $review['comment_pros'] ?></p><?php endif; ?>
+                        <?php if (!empty($review['comment_cons'])): ?><p><strong><?php echo $this->__('FOXRATE_CONS'); ?></strong><br><?php echo $review['comment_cons'] ?></p><?php endif; ?>
+                        <?php if (!empty($review['comment_conclusion'])): ?>
+                            <p><strong><?php echo $this->__('Conclusion'); ?></strong><br><?php echo $review['comment_conclusion']; ?></p>
+                        <?php endif; ?>
+                        <?php if (!empty($review['comment'])): ?><p><strong><?php echo $this->__('Comment'); ?></strong><br><?php echo $review['comment']; ?></p><?php endif; ?>
+                        <small class="date"><?php echo $this->__('(Posted on %s)', $processedReviews->calcReviewDate($review['date']), 'long') ?></small>
+                    </dd>
+                <?php endforeach; ?>
+            </dl>
+        <?php endif;?>
+    </div>
+</div>
+<?php } ?>

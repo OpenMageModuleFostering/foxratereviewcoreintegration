@@ -1,10 +1,6 @@
 <?php
 
 
-/**
- * Show review summary and review list on review page.
- * Class Foxrate_ReviewCoreIntegration_Block_Product_View_List
- */
 class Foxrate_ReviewCoreIntegration_Block_Product_View_List extends Mage_Review_Block_Product_View_List
 {
 
@@ -16,30 +12,14 @@ class Foxrate_ReviewCoreIntegration_Block_Product_View_List extends Mage_Review_
     {
         parent::__construct();
 
-        $this->config = $this->getConfig();
+        $this->config = Mage::getModel('reviewcoreintegration/config');
     }
 
     protected function _toHtml()
     {
-        try {
-            $productId = $this->getFoxrateProductId();
-            $processReviews = $this->getKernel()->get('rci.process_reviews');
-            $reviews = $processReviews->getRawProductReviews($productId);
+        $this->assign('foxrateReview', $this->getReviewModel());
 
-            $this->assign('foxrateReview', $this->getKernel()->get('rci.review'));
-            $this->assign('foxrateProductReviews', $processReviews->getRawProductReviews($productId));
-            $this->assign('pages', $this->getReviewModel()->getPageNav($reviews->pages_count, $reviews->current_page));
-            $this->assign('foxrateReviewGeneralData', $this->getKernel()->get('rci.review_totals')->getReviewTotalData($productId));
-
-            $this->setTemplate('foxrate/review/product/view/foxrate_review_page.phtml');
-            return parent::_toHtml();
-
-        } catch (Foxrate_Sdk_ApiBundle_Exception_ReviewsNotFoundException $e) {
-            $this->assign('foxrateFiError', $e->getMessage());
-            $this->assign('foxrateFiDebugMessage', new Foxrate_Sdk_FoxrateRCI_Error($e->getMessage(), $e->getCode()));
-            return parent::_toHtml();
-
-        }
+        return parent::_toHtml();
     }
 
     /**
@@ -66,9 +46,20 @@ class Foxrate_ReviewCoreIntegration_Block_Product_View_List extends Mage_Review_
         return $this->config->getConfigParam('foxrateRichSnippetActive');
     }
 
+
+    /**
+     * Create review sorting criteria
+     * @return array
+     */
+    public function getSortingCriteria()
+    {
+        $pageNav = $this->getReviewModel()->getSortingCriteria();
+        return $pageNav;
+    }
+
     public function getAjaxControllerUrl()
     {
-        return $this->getConfig()->getAjaxControllerUrl();
+        return Mage::getModel('reviewcoreintegration/config')->getAjaxControllerUrl();
     }
 
     /**
@@ -76,7 +67,7 @@ class Foxrate_ReviewCoreIntegration_Block_Product_View_List extends Mage_Review_
      */
     public function getFoxrateShopUrl()
     {
-        return $this->getConfig()->getShopUrl();
+        return Mage::getModel('reviewcoreintegration/config')->getShopUrl();
     }
 
     /**
@@ -86,6 +77,18 @@ class Foxrate_ReviewCoreIntegration_Block_Product_View_List extends Mage_Review_
     public function getFoxrateProductId()
     {
         return $this->getProduct()->getId();
+    }
+
+    /**
+     * Lazy loader for review model
+     */
+    public function getReviewModel()
+    {
+        if (null == $this->reviewModel)
+        {
+            $this->reviewModel = Mage::getModel('reviewcoreintegration/review');
+        }
+        return $this->reviewModel;
     }
 
     /**
@@ -100,28 +103,7 @@ class Foxrate_ReviewCoreIntegration_Block_Product_View_List extends Mage_Review_
 
     public function getReviewTotalData($entityId)
     {
-        return $this->getKernel()->get('rci.review_totals')->getReviewTotalData($entityId);
+        return Mage::getModel('reviewcoreintegration/reviewtotals')->getReviewTotalData($entityId);
     }
 
-    private function getKernel()
-    {
-        return Mage::getModel('reviewcoreintegration/kernelloader')->getKernel();
-    }
-
-    /**
-     * Lazy loader for review model
-     */
-    public function getReviewModel()
-    {
-        if (null == $this->reviewModel)
-        {
-            $this->reviewModel = $this->getKernel()->get('rci.review');
-        }
-        return $this->reviewModel;
-    }
-
-    private function getConfig()
-    {
-        return $this->getKernel()->get('shop.configuration');
-    }
 }

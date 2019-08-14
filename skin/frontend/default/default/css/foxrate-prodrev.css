@@ -7,13 +7,6 @@
     margin: 10px 0;
     padding: 3px 5px;
 }
-
-.frRating-head .frToolbarDetail,
-.frRatingSortSearch
-{
-    height: 40px;
-    line-height: 40px;
-}
 .frtab-cnt {
     background: none repeat scroll 0 0 #FFFFFF;
     padding: 0 15px 15px;
@@ -369,7 +362,8 @@ ul.sibling li a.active {
     border:0 none;
 }
 .openmodalbox{
-    margin-left: 5px;
+    margin-left: 15px;
+    text-decoration: underline;
 }
 
 .openmodalbox:hover{

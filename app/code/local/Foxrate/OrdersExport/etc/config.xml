@@ -1,0 +1,73 @@
+<?xml version="1.0"?>
+<config>
+    <modules>
+        <Foxrate_OrdersExport>
+            <version>3.0.8</version>
+        </Foxrate_OrdersExport>
+    </modules>
+
+    <frontend>
+        <routers>
+            <ordersexport>
+                <use>standard</use>
+                <args>
+                    <module>Foxrate_OrdersExport</module>
+                    <frontName>ordersexport</frontName>
+                </args>
+            </ordersexport>
+        </routers>
+        <translate>
+            <modules>
+                <ordersexport>
+                    <files>
+                        <default>Foxrate_OrdersExport.csv</default>
+                    </files>
+                </ordersexport>
+            </modules>
+        </translate>
+    </frontend>
+
+    <adminhtml>
+        <acl>
+            <resources>
+                <admin>
+                    <children>
+                        <system>
+                            <children>
+                                <config>
+                                    <children>
+                                        <ordersexport translate="title" module="ordersexport">
+                                            <title>Foxrate Settings</title>
+                                        </ordersexport>
+                                    </children>
+                                </config>
+                            </children>
+                        </system>
+                    </children>
+                </admin>
+            </resources>
+        </acl>
+    </adminhtml>
+
+    <global>
+        <models>
+            <ordersexport>
+                <class>Foxrate_OrdersExport_Model</class>
+            </ordersexport>
+        </models>
+        <helpers>
+            <ordersexport>
+                <class>Foxrate_OrdersExport_Helper</class>
+            </ordersexport>
+        </helpers>
+    </global>
+
+    <default>
+        <ordersexport>
+            <foxrateOrdersExport>
+                <fox_api_username>-</fox_api_username>
+                <fox_api_password>-</fox_api_password>
+            </foxrateOrdersExport>
+        </ordersexport>
+    </default>
+</config>
