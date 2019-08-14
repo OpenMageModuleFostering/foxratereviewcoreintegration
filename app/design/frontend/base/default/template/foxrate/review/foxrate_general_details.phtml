@@ -1,160 +1,124 @@
-<div id="fiRating" class="fi-rating">
+<div class="poweredBy right light-grey text"><?php echo $this->__('FOXRATE_POWERED'); ?>&nbsp;&nbsp;
+    <img class="inset align-middle" src="<?php echo $this->getModuleUrl('foxrateProdRev', 'foxrate-logo.png'); ?>">
+</div>
 
-    <input type="hidden" id="shopUrl" value="<?php echo $reviewHelper->getAjaxControllerUrl(); ?>">
-    <input type="hidden" id="productId" value="<?php echo $this->getFoxrateProductId(); ?>">
-
-    <div class="fi-filter-bar">
-        <div class="fi-row">
-            <div class="fi-column fi-column-left">
-                <?php echo $this->__('FOXRATE_PRODUCT_REVS'); ?>: <strong><?php echo $foxrateReviewGeneralData['product_name']; ?></strong>
-            </div>
-        </div>
+<div class="frRating-top" <?php if ($this->richSnippetIsActive()): ?>itemprop="aggregateRating" itemscope itemtype="http://schema.org/AggregateRating"<?php endif; ?>>
+    <div class="frStars inset">
+        <div class="frStars yellow"
+             style="width:<?php echo Mage::helper('reviewcoreintegration')->formatCalcPercent($foxrateReviewGeneralData['average'], 5); ?>%;"></div>
     </div>
-
-    <div class="fi-overall-rating fi-row" itemprop="aggregateRating" itemscope=""
-         itemtype="http://schema.org/AggregateRating">
-        <div class="fi-column fi-column-left fi-column-50">
-
-            <div class="fi-rating-stars fi-rating-stars-big"
-                 data-rating="<?php echo Mage::helper('reviewcoreintegration')->formatCalcPercent($foxrateReviewGeneralData['average'], 5); ?>">
-                <span class="fi-indicator"></span>
-            </div>
-
-            <div class="fi-total-rating">
-                <div class="fi-info-line">
-                    <span class="fi-inverted-label fi-rating-value-num"
-                          itemprop="ratingValue"><?php echo $foxrateReviewGeneralData['average']; ?></span> /
-                    <span class="fi-rating-value-num">5</span> <?php echo $this->__('FOXRATE_FROM'); ?> <span
-                        itemprop="reviewCount"><?php echo $foxrateReviewGeneralData['count']; ?></span>
-                    <?php echo $this->__('FOXRATE_REVIEWS'); ?>
-                </div>
-            </div>
-        </div>
-
-    </div>
-    <div class="fi-detailed-rating fi-row">
-
-        <div class="fi-column fi-column-left fi-column-50">
-            <ul class="fi-rating-values">
-                <?php foreach ($foxrateReviewGeneralData['counts'] as $key => $value): ?>
-                    <li>
-                        <div class="fi-value-link">
-                            <a href="javascript:void(0)"
-                               class="fi-starFilter"
-                               data-stars="<?php echo $key; ?>"><?php echo $key; ?>
-                                <?php if($key == 1) { ?>
-                                    <?php echo $this->__('FOXRATE_STAR'); ?>
-                                <?php } else { ?>
-                                    <?php echo $this->__('FOXRATE_STARS'); ?>
-                                <?php } ?>
-                            </a>
-                        </div>
-                        <div class="fi-value-bar"
-                             data-rating="<?php echo Mage::helper('reviewcoreintegration')->formatCalcPercent($value, $foxrateReviewGeneralData['count']); ?>">
-                            <span class="fi-indicator"></span></div>
-                        <div class="fi-value-count">(<?php echo $value; ?>)</div>
-                    </li>
-                <?php endforeach; ?>
-            </ul>
-        </div>
-        <div class="fi-column fi-column-right fi-column-50">
-            <ul class="fi-rating-values fi-rating-avg-values">
-                <li class="fi-row">
-                    <div class="fi-column fi-column-left fi-column-50 fi-value-label fi-strong">
-                        <?php echo $this->__('FOXRATE_IMPRESSION'); ?>
-                    </div>
-                    <div class="fi-column fi-column-left fi-column-20">
-                        <div class="fi-rating-stars"
-                             data-rating="<?php echo Mage::helper('reviewcoreintegration')->formatCalcPercent($foxrateReviewGeneralData['average'], 5); ?>"><span
-                                class="fi-indicator"></span></div>
-                    </div>
-                    <div class="fi-column fi-column-left fi-column-20 fi-value-count">
-                        <span class="fi-value-actual"><?php echo $foxrateReviewGeneralData['average']; ?></span>
-                        <span class="fi-value-available"> <?php echo $this->__('FOXRATE_OF_FIVE'); ?></span>
-                    </div>
-                </li>
-                <li class="fi-row">
-                    <div class="fi-column fi-column-left fi-column-50 fi-value-label">
-                        <?php echo $this->__('FOXRATE_QUALITY'); ?>
-                    </div>
-                    <div class="fi-column fi-column-left fi-column-20">
-                        <div class="fi-rating-stars"
-                             data-rating="<?php echo Mage::helper('reviewcoreintegration')->formatCalcPercent($foxrateReviewGeneralData['questions_averages']['quality'], 5); ?>">
-                            <span class="fi-indicator"></span></div>
-                    </div>
-                    <div class="fi-column fi-column-left fi-column-20 fi-value-count">
-                        <span class="fi-value-actual"><?php echo $foxrateReviewGeneralData['questions_averages']['quality']; ?></span>
-                        <span class="fi-value-available"><?php echo $this->__('FOXRATE_OF_FIVE'); ?></span>
-                    </div>
-                </li>
-                <li class="fi-row">
-                    <div class="fi-column fi-column-left fi-column-50 fi-value-label">
-                        <?php echo $this->__('FOXRATE_VALUE_FOR_MONEY'); ?>
-                    </div>
-                    <div class="fi-column fi-column-left fi-column-20">
-                        <div class="fi-rating-stars"
-                             data-rating="<?php echo Mage::helper('reviewcoreintegration')->formatCalcPercent($foxrateReviewGeneralData['questions_averages']['price'], 5); ?>">
-                            <span class="fi-indicator"></span></div>
-                    </div>
-                    <div class="fi-column fi-column-left fi-column-20 fi-value-count">
-                        <span class="fi-value-actual"><?php echo $foxrateReviewGeneralData['questions_averages']['price']; ?></span>
-                        <span class="fi-value-available"><?php echo $this->__('FOXRATE_OF_FIVE'); ?></span>
-                    </div>
-                </li>
-                <li class="fi-row">
-                    <div class="fi-value-label fi-single">
-                        <?php $fiRecs = $foxrateReviewGeneralData['recommends']['yes']; ?>
-                        <?php $fiRecsOf = $foxrateReviewGeneralData['recommends']['count']; ?>
-                        <span class="fi-rating-value-num"><?php echo Mage::helper('reviewcoreintegration')->formatCalcPercent($fiRecs, $fiRecsOf); ?>%</span>
-                        <?php echo $this->__('FOXRATE_RECCOMEND'); ?>
-                    </div>
-                </li>
-            </ul>
-        </div>
-    </div>
-    <div class="fi-user-reviews">
-        <div class="fi-filter-bar">
-            <div class="fi-row">
-                <div class="fi-column fi-column-left fi-column-30">
-                    <?php echo $this->__('FOXRATE_PRODUCT_REVS'); ?>
-                </div>
-            </div>
-        </div>
-        <div class="fi-reviews-page">
-            <?php echo $this->getLayout()->getBlockSingleton('review/form')->setTemplate('foxrate/review/foxrate_review_list.phtml')->toHtml(); ?>
-        </div>
-        <?php if (is_array($pages) && count($pages) > 1): ?>
-            <div class="fi-reviews-pager">
-                <ul class="fi-page-numbers">
-                    <li>
-                    <span>
-                        <?php echo $this->__('FOXRATE_PAGES'); ?>:
-                    </span>
-                    </li>
-
-                    <?php foreach ($pages as $key => $page): ?>
-                        <li>
-                            <a href="#"<?php if ($key == 'current'): ?> class="current"<?php endif; ?>><?php echo $page; ?></a>
-                        </li>
-                    <?php endforeach; ?>
-
-                </ul>
-            </div>
+    <div class="inset frStars-txt">
+        <span class="rating" itemprop="ratingValue"><?php echo $foxrateReviewGeneralData['average']; ?></span><strong><?php echo $this->__('FOXRATE_OF_FIVE'); ?></strong>
+        <?php echo $this->__('FOXRATE_FROM' ); ?> <span itemprop="reviewCount"><?php echo $foxrateReviewGeneralData['count']; ?></span>  <?php echo $this->__('FOXRATE_REVIEWS'); ?>
+        <br>
+        <?php if(!empty($foxrateReviewGeneralData['recommends']['count'])): ?>
+            <strong><?php echo $foxrateReviewGeneralData['recommends']['yes_percent']; ?>%</strong> <?php echo $this->__('FOXRATE_VALUE_FOR_MONEY'); ?>
+        <?php else: ?>
+            <?php echo $this->__('FOXRATE_VALUE_FOR_MONEY_NOT_ENOUGH'); ?>
         <?php endif; ?>
-
-        <div class="fi-column fi-column-100">
-            <div class="fi-brought-by-foxrate">
-                <span class="fi-label"><?php echo $this->__('FOXRATE_POWERED'); ?>:</span>
-                <span class="fi-foxrate-logo"></span>
-            </div>
-        </div>
     </div>
 </div>
 
+<div class="frRating-left fleft">
+    <?php foreach ($foxrateReviewGeneralData['counts'] as $key => $value): ?>
+        <div class="rating-all">
+            <div class="inset align-middle">
+                <a class='starFilter'
+                   onclick="loadUserRevPage(1, '<?php echo $this->getAjaxControllerUrl(); ?>', '<?php  echo $this->getFoxrateProductId(); ?>', {star:<?php echo $key; ?>});"
+                   href="javascript:void(0)"><?php echo $key; ?> <?php echo $this->__('FOXRATE_STARS'); ?></a>
+                &nbsp;&nbsp;
+            </div>
+            <div class="rating-bar inset align-middle">
+                <div style="width:<?php echo Mage::helper('reviewcoreintegration')->formatCalcPercent($value, $foxrateReviewGeneralData['count']) ; ?>%;"
+                     class="rating-bar-fill"></div>
+            </div>
+            <div class="inset align-middle">(<?php echo $value; ?>)</div>
+        </div>
+    <?php endforeach; ?>
+</div>
 
+<div class="frRating-left fright generalDetails">
+    <table>
+        <tbody>
+        <tr>
+            <td width="160" class='avgRatingTitle'>
+                <strong><?php echo $this->__('FOXRATE_IMPRESSION' ); ?></strong></td>
+            <td>
+                <div class="stars-small left">
+                    <div style="width:<?php echo Mage::helper('reviewcoreintegration')->formatCalcPercent($foxrateReviewGeneralData['questions_averages']['usability'], 5) ; ?>%;"
+                         class="stars-small yellow left"></div>
+                </div>
+            </td>
+            <td class="rateValue"><?php echo $foxrateReviewGeneralData['questions_averages']['usability']; ?><span
+                    style="color:grey"><?php echo $this->__('FOXRATE_OF_FIVE' ); ?></span></td>
+        </tr>
+        <tr>
+            <td><?php echo $this->__('FOXRATE_QUALITY' ); ?></td>
+            <td>
+                <div class="stars-small left">
+                    <div style="width:<?php echo Mage::helper('reviewcoreintegration')->formatCalcPercent($foxrateReviewGeneralData['questions_averages']['quality'], 5) ; ?>%;"
+                         class="stars-small yellow left"></div>
+                </div>
+            </td>
+            <td class="rateValue"><?php echo $foxrateReviewGeneralData['questions_averages']['quality']; ?><span
+                    style="color:grey"><?php echo $this->__('FOXRATE_OF_FIVE' ); ?></span></td>
+        </tr>
+        <tr>
+            <td><?php echo $this->__('FOXRATE_VALUE_FOR_MONEY' ); ?></td>
+            <td>
+                <div class="stars-small left">
+                    <div style="width:<?php echo Mage::helper('reviewcoreintegration')->formatCalcPercent($foxrateReviewGeneralData['questions_averages']['price'], 5) ; ?>%;"
+                         class="stars-small yellow left"></div>
+                </div>
+            </td>
+            <td class="rateValue"><?php echo $foxrateReviewGeneralData['questions_averages']['price']; ?><span
+                    style="color:grey"><?php echo $this->__('FOXRATE_OF_FIVE' ); ?></span></td>
+        </tr>
+        </tbody>
+    </table>
+    <div class="recommends">
+        <strong><?php echo $foxrateReviewGeneralData['recommends']['yes']; ?></strong> <?php echo $this->__('FOXRATE_OF' ); ?> <?php echo $foxrateReviewGeneralData['recommends']['count']; ?> <?php echo $this->__('FOXRATE_RECCOMEND' ); ?> <?php echo $this->getTitle(); ?>
+    </div>
+</div>
 
+<div id="frReviewArea" style="opacity: 1;">
 
+    <div id="frReviewArea2">
 
+        <div class="fclear"></div>
+        <div class="frRating-top-all">
+            <div class="frRating-left fleft">
+                <div class="rating-all">
+                    <div id="showAll" class="inset align-middle hide">
+                        <a id='showAllExec'
+                           href="javascript:void(0)"><?php echo $this->__('FOXRATE_SHOWALL' ); ?></a>&nbsp;&nbsp;
+                    </div>
+                </div>
+            </div>
+        </div>
 
+        <div class="frRating-right fright">&nbsp;</div>
+        <div class="fclear"></div>
+        <!--</div>-->
 
+        <div class="frRating-head pager">
+            <span class="frToolbarDetail"><?php echo $this->__('FOXRATE_PRODUCT_REVS' ); ?></span>
+            <span style="float:right;" class="frRatingSortSearch">
+                <?php echo $this->__('FOXRATE_SORTING' ); ?>
+                <select id="sortingExec" name="sort">
+                    <?php foreach ($this->getSortingCriteria() as $key=> $criteria): ?>
+                        <option value="<?php echo $key; ?>"><?php echo $criteria; ?></option>
+                    <?php endforeach; ?>
+                </select>
+                            &nbsp;
+                            <input type="text" class="frRatingSearchInput" value="" name="frsearch" id="frsearch">
+                            <input type="button" value="<?php echo $this->__('FOXRATE_GO' ); ?>" id="searchExec" name="submit">
+
+                            </span>
+
+            <div class="fclear"></div>
+        </div>
+
+    </div>
+</div>
 <!-- /1 -->

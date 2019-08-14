@@ -2,9 +2,11 @@
 $ratingHelper = Mage::helper('reviewcoreintegration/rating');
 
 if ($this->reviewTotalsModel()->getReviewsCount()):
-    ?>
-    <div class="_ratings">
-        <?php echo $ratingHelper->getRatingStars($this->getProduct()->getId()); ?>
+?>
+    <div class="ratings">
+        <div class="rating-box">
+            <?php echo $ratingHelper->getRatingStars($this->getProduct()->getId()); ?>
+        </div>
         <span class="amount"><a href="#" onclick="var t = opener ? opener.window : window; t.location.href='<?php echo $this->getReviewsUrl() ?>'; return false;"><?php echo $this->__('%d Review(s)', $this->reviewTotalsModel()->getReviewsCount()) ?></a></span>
     </div>
 <?php elseif ($this->getDisplayIfEmpty()): ?>

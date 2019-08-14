@@ -1,14 +1,27 @@
-<?php if(empty($foxrateReviewGeneralData) or isset($foxrateReviewGeneralData['error'])): ?>
-    <div class="error-msg"><?php if (isset($foxrateReviewGeneralData['error']))  echo $foxrateReviewGeneralData['error'] ?></div>
-<?php else: ?>
-    <?php echo $this->getLayout()->getBlockSingleton('review/form')->setTemplate('foxrate/review/foxrate_general_details.phtml')->toHtml(); ?>
-<?php endif; ?>
+<div id="foxrateProductReviews">
+    <?php
+    if(empty($foxrateReviewGeneralData) or isset($foxrateReviewGeneralData['error'])): ?>
+        <div class="error-msg"><?php if (isset($foxrateReviewGeneralData['error']))  echo $foxrateReviewGeneralData['error'] ?></div>
+    <?php else: ?>
+    <div class="prodDESC">
 
+        <!-- tofix -->
+        <input type="hidden" id="shopUrl" value="<?php echo $this->getAjaxControllerUrl(); ?>">
+        <input type="hidden" id="productId" value="<?php echo $this->getFoxrateProductId(); ?>">
+
+        <div class="frRating-top-all">
+            <?php //echo $this->getChildHtml('foxrate_summary', false) ?>
+            <?php echo $this->getLayout()->getBlockSingleton('review/form')->setTemplate('foxrate/review/foxrate_general_details.phtml')->toHtml(); ?>
+        </div>
+    </div>
+    <?php endif; ?>
+
+</div>
+<h2><?php echo $this->__('Customer Reviews') ?></h2>
 <?php //echo $this->getChildHtml('foxrate_review_list') ?>
-<?php // echo $this->getLayout()->getBlockSingleton('review/form')->setTemplate('foxrate/review/foxrate_review_list.phtml')->toHtml(); ?>
+<?php echo $this->getLayout()->getBlockSingleton('review/form')->setTemplate('foxrate/review/foxrate_review_list.phtml')->toHtml(); ?>
 
-<script type="text/javascript" src="<?php echo $this->getSkinUrl('js/foxrate/fi-scripts-sdk.js')?>"></script>
-<script type="text/javascript" src="<?php echo $this->getSkinUrl('js/foxrate/fi-scripts.js')?>"></script>
+<script type="text/javascript" src="<?php echo $this->getSkinUrl('js/foxrate/jquery.1.8.3.min.js')?>"></script>
+<script type="text/javascript" src="<?php echo $this->getSkinUrl('js/foxrate/foxrateProdRev.js')?>"></script>
 <script type="text/javascript" src="<?php echo $this->getSkinUrl('js/foxrate/modalbox/js/jquery.modalbox-1.4.1.js')?>"></script>
 <link rel="stylesheet" type="text/css" href="<?php echo $this->getSkinUrl('js/foxrate/modalbox/css/jquery.modalbox.css')?>" media="all" />
-<link rel="stylesheet" type="text/css" href="<?php echo $this->getSkinUrl('css/fi-style.css')?>" media="all" />
