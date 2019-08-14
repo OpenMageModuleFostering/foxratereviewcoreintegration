@@ -11,7 +11,7 @@ class Foxrate_Magento_ShopEnvironment
 
     const BRIDGE_URI  = 'foxrate_api';
 
-    private $pluginVersion = '3.5.1';
+    private $pluginVersion = '3.5.60';
 
     /**
      * Returns the particular shop system version.
@@ -93,7 +93,30 @@ class Foxrate_Magento_ShopEnvironment
 
     public function getShopName()
     {
-        return Mage::getStoreConfig('general/store_information/name');
+        if ($this->isTestEnvironment()) {
+            return "Foxrate Test Shop";
+        }
+
+        $storeInformationName = Mage::getStoreConfig('general/store_information/name');
+        if (!empty($storeInformationName)) {
+            return $storeInformationName;
+        }
+
+        $frontendName = Mage::app()->getStore($this->getStoreId())->getFrontendName();
+        return $frontendName . $this->getViewName();
     }
 
+    private function getViewName()
+    {
+        $store = Mage::app()->getStore($this->getStoreId());
+        $viewName =  $store->getName();
+
+        //don' add empty and Admin as viewnames
+        return ((!empty($viewName) and $viewName != "Admin") ? " - " . $viewName : "");
+    }
+
+    private function isTestEnvironment()
+    {
+        return preg_match('/magento-php52-[\d]*.vm/', $_SERVER['HTTP_HOST']);
+    }
 }
