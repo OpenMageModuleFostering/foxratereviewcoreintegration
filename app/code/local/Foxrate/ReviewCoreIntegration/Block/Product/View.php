@@ -1,4 +1,5 @@
 <?php
+use Symfony\Component\Config\Definition\Exception\Exception;
 
 /**
  * Viewer for foxrate_general_details.phtml template
@@ -13,10 +14,6 @@ class Foxrate_ReviewCoreIntegration_Block_Product_View extends Mage_Review_Block
 
     protected $prodRevGeneral;
 
-    protected $lazyLoadingModel;
-
-    private static $kernel;
-
     /**
      * Render block HTML
      *
@@ -24,11 +21,17 @@ class Foxrate_ReviewCoreIntegration_Block_Product_View extends Mage_Review_Block
      */
     protected function _toHtml()
     {
-        $productid = $this->getFoxrateProductId();
+        try {
+            $productid = $this->getFoxrateProductId();
 
-        $this->assign('foxrateReviewGeneralData', $this->getKernel()->get('rci.review_totals')->getReviewTotalData($productid));
-        $this->assign('foxrateProductReviewList', $this->getKernel()->get('rci.process_reviews')->getProductReviewList($productid) );
-        return parent::_toHtml();
+            $this->assign('foxrateReviewGeneralData', $this->getKernel()->get('rci.review_totals')->getReviewTotalData($productid));
+            $this->assign('foxrateProductReviewList', $this->getKernel()->get('rci.process_reviews')->getProductReviewList($productid) );
+            return parent::_toHtml();
+
+        } catch (Exception $e) {
+            return parent::_toHtml();
+        }
+
     }
 
     /**
@@ -42,17 +45,21 @@ class Foxrate_ReviewCoreIntegration_Block_Product_View extends Mage_Review_Block
      */
     public function getReviewsSummaryHtml(Mage_Catalog_Model_Product $product, $templateType = false, $displayIfNoReviews = false)
     {
-        $prodRevGeneral =  $this->getProdRevGeneral();
+        try {
+            $prodRevGeneral =  $this->getProdRevGeneral();
 
-        return
-            $this->getLayout()->createBlock('rating/entity_detailed')
-                ->setEntityId($this->getProduct()->getId())
-                ->toHtml()
-            .
-            $this->getLayout()->getBlock('product_review_list.count')
-                ->assign('count', $prodRevGeneral['count'])
-                ->toHtml()
-            ;
+            return
+                $this->getLayout()->createBlock('rating/entity_detailed')
+                    ->setEntityId($this->getProduct()->getId())
+                    ->toHtml()
+                .
+                $this->getLayout()->getBlock('product_review_list.count')
+                    ->assign('count', $prodRevGeneral['count'])
+                    ->toHtml()
+                ;
+        } catch (Foxrate_Sdk_Api_Exception_Communicate $e) {
+            return parent::getReviewsSummaryHtml($product, $templateType, $displayIfNoReviews);
+        }
     }
 
     /**
@@ -122,8 +129,6 @@ class Foxrate_ReviewCoreIntegration_Block_Product_View extends Mage_Review_Block
         }
     }
 
-
-
     /**
      * Get module url
      *
@@ -144,22 +149,6 @@ class Foxrate_ReviewCoreIntegration_Block_Product_View extends Mage_Review_Block
     public function getSortingCriteria()
     {
         return $this->getKernel()->get('rci.review')->getSortingCriteria();
-    }
-
-    /**
-     * Make a lazy loader for Magento modules
-     *
-     * @param $value
-     * @return mixed
-     */
-    public function lazyLoadModel($value)
-    {
-        if (!isset($this->lazyLoadingModel[$value]))
-        {
-            $this->lazyLoadingModel[$value] = Mage::getModel($value);
-        }
-
-        return $this->lazyLoadingModel[$value];
     }
 
     /**

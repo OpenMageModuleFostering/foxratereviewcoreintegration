@@ -11,7 +11,7 @@ class Foxrate_Magento_ShopEnvironment
 
     const BRIDGE_URI  = 'foxrate_api';
 
-    private $pluginVersion = '3.3.2';
+    private $pluginVersion = '3.3.3';
 
     /**
      * Returns the particular shop system version.

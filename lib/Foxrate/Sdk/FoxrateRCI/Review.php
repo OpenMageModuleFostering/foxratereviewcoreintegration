@@ -393,7 +393,7 @@ class Foxrate_Sdk_FoxrateRCI_Review extends Foxrate_Sdk_FoxrateRCI_ReviewAbstrac
         $resultObject = $this->makeRequestBasicAuth($apiCall, $this->sFoxrateAPIUsername, $this->sFoxrateAPIPassword);
 
         if (empty($resultObject->id)) {
-            throw new Exception("Couldn't get current seller Id from Foxrate. Url: " . $apiCall);
+            throw new Foxrate_Sdk_Api_Exception_Communicate("Couldn't get current seller Id from Foxrate. Url: " . $apiCall);
         }
         $myConfig->saveShopConfVar('foxrateSellerId', $resultObject->id, 'string');
         $this->sFoxrateAPI2sellerId = $resultObject->id;

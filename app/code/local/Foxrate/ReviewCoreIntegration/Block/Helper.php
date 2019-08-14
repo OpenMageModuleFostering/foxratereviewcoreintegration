@@ -1,7 +1,7 @@
 <?php
 class Foxrate_ReviewCoreIntegration_Block_Helper extends Mage_Review_Block_Helper
 {
-    protected $_availableTemplates = array(
+    protected $foxrateAvailableTemplates = array(
         'default'   => 'foxrate/rating/detailed.phtml',
         'short'     => 'foxrate/review/helper/summary_short.phtml',
     );
@@ -14,6 +14,10 @@ class Foxrate_ReviewCoreIntegration_Block_Helper extends Mage_Review_Block_Helpe
 
     protected $reviewTotalsData;
 
+    protected $writeReviewLink;
+
+    protected $useMagentoDefaultPage = false;
+
     protected function _construct()
     {
         parent::_construct();
@@ -21,20 +25,29 @@ class Foxrate_ReviewCoreIntegration_Block_Helper extends Mage_Review_Block_Helpe
 
     protected function _toHtml()
     {
-        //force new Review Total model
-        $reviewTotals = $this->createReviewTotalsModel($this->getEntityId());
+        if ($this->useMagentoDefaultPage === true) {
+            parent::_toHtml();
+        }
 
-        $this->assign('reviewLink', $this->getKernel()->get('rci.review')->getWriteReviewLink($this->getEntityId()));
-        $this->assign('reviewTotalsData', $reviewTotals->getReviewTotalData($this->getEntityId()));
-        $this->assign('reviewTotals', $reviewTotals);
-        $this->assign('ratingHelper', $this->getKernel()->get('rci.rating_helper'));
-        $this->assign('processedReviews', $this->getKernel()->get('rci.rating_helper'));
-        $this->assign('entityId', $this->getEntityId());
+        try {
 
-        if (0 == $reviewTotals->getTotalReviews())
-        {
-            $this->setTemplate('foxrate/rating/empty.phtml');
-            return parent::_toHtml();
+            $reviewTotals = $this->createReviewTotalsModel($this->getEntityId());
+
+            $this->assign('reviewLink', $this->writeReviewLink);
+            $this->assign('reviewTotalsData', $reviewTotals->getReviewTotalData($this->getEntityId()));
+            $this->assign('reviewTotals', $reviewTotals);
+            $this->assign('ratingHelper', $this->getKernel()->get('rci.rating_helper'));
+            $this->assign('processedReviews', $this->getKernel()->get('rci.rating_helper'));
+            $this->assign('entityId', $this->getEntityId());
+
+            if (0 == $reviewTotals->getTotalReviews())
+            {
+                $this->setTemplate('foxrate/rating/empty.phtml');
+                return parent::_toHtml();
+            }
+
+        } catch (Foxrate_Sdk_Api_Exception_Communicate $e) {
+            $this->setTemplate('review/helper/summary.phtml');
         }
 
         return parent::_toHtml();
@@ -50,8 +63,16 @@ class Foxrate_ReviewCoreIntegration_Block_Helper extends Mage_Review_Block_Helpe
      */
     public function getSummaryHtml($product, $templateType, $displayIfNoReviews)
     {
+        try {
+           $this->writeReviewLink = $this->getKernel()->get('rci.review')->getWriteReviewLink($this->getEntityId());
+        } catch (Foxrate_Sdk_Api_Exception_Communicate $e) {
+            $this->useMagentoDefaultPage = true;
+            return parent::getSummaryHtml($product, $templateType, $displayIfNoReviews);
+        }
+
         $this->assign('addReviewsLink', true);
 
+        $this->_availableTemplates = $this->foxrateAvailableTemplates;
         // pick template among available
         if (empty($this->_availableTemplates[$templateType])) {
             $templateType = 'default';

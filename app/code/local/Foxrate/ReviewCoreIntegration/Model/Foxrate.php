@@ -21,7 +21,7 @@ class Foxrate_ReviewCoreIntegration_Model_Foxrate
     /**
      * Foxrate plugin version
      */
-    protected $_foxratePluginVersion = '3.3.2';
+    protected $_foxratePluginVersion = '3.3.3';
 
     public function __construct()
     {

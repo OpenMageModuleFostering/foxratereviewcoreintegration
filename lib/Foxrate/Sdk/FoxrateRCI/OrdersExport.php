@@ -12,7 +12,7 @@ class Foxrate_Sdk_FoxrateRci_OrdersExport
     /**
      * Foxrate plugin version
      */
-    protected $_sFoxratePluginVersion = '3.3.2';
+    protected $_sFoxratePluginVersion = '3.3.3';
 
     /**
      * Foxrate secret key
