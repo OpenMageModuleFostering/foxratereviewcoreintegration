@@ -3,9 +3,9 @@
 /**
  * @todo What is type is this class? Helper? Controller?
  *
- * Class Foxrate_Sdk_FoxrateRci_Processreviews
+ * Class Foxrate_Sdk_FoxrateRCI_ProcessReviews
  */
-class Foxrate_Sdk_FoxrateRci_Processreviews
+class Foxrate_Sdk_FoxrateRCI_ProcessReviews
 {
 
     protected $reviewModel;
@@ -13,13 +13,15 @@ class Foxrate_Sdk_FoxrateRci_Processreviews
     protected $processedReviews;
     protected $foxrateGeneralData;
 
-    function __construct(Foxrate_Sdk_FoxrateRci_DataManager $dataManager, Foxrate_Sdk_FoxrateRCI_ReviewInterface $reviewModel, $request)
-    {
+    public function __construct(
+        Foxrate_Sdk_FoxrateRCI_DataManager $dataManager,
+        Foxrate_Sdk_FoxrateRCI_Review $reviewModel,
+        $request
+    ) {
         $this->dataManager = $dataManager;
         $this->reviewModel = $reviewModel;
         $this->request = $request;
     }
-
 
     /**
      * One page of reviews from variety of users
@@ -29,21 +31,8 @@ class Foxrate_Sdk_FoxrateRci_Processreviews
      */
     public function getRawProductReviews($productId)
     {
-        try
-        {
-            $objData = $this->dataManager->loadCachedProductReviews($productId);
-            $pageRevInfo = $this->getReviewModel()->convertObjectToArray($objData);
-        }
-        catch (Exception $e)
-        {
-            $pageRevInfo = array( "error" => $e->getMessage());
-        }
-        $this->processedReviews = $pageRevInfo;
-
-        return $this->processedReviews;
+        return $this->processedReviews = $this->dataManager->loadCachedProductReviews($productId);
     }
-
-
 
     /**
      * Lazy loader for review model
@@ -57,6 +46,7 @@ class Foxrate_Sdk_FoxrateRci_Processreviews
     {
         return $this->getKernel()->get('rci.review_totals');
     }
+
     /**
      * Get entity id
      *
@@ -67,31 +57,14 @@ class Foxrate_Sdk_FoxrateRci_Processreviews
         return Mage::app()->getRequest()->getParam('id');
     }
 
-    /**
-     * Returns page numbers ready for navigating
-     * @return array
-     */
-    public function getPageNav()
-    {
-        $this->processedReviews = $this->getProcessedReviews();
-
-        if (!isset($this->processedReviews['pages_count']) || !isset($this->processedReviews['current_page']))
-        {
-            return '';
-        }
-        return $this->getReviewModel()->getPageNav($this->processedReviews['pages_count'], $this->processedReviews['current_page']);;
-    }
-
     public function getProductReviewList($productId)
     {
-        if (null == $this->processedReviews)
-        {
+        if (null == $this->processedReviews) {
             $this->processedReviews = $this->getRawProductReviews($productId);
         }
 
-        return isset($this->processedReviews['reviews']) ? $this->processedReviews['reviews'] : array();
+        return isset($this->processedReviews->reviews) ? $this->processedReviews->reviews : array();
     }
-
 
     /**
      * @param mixed $processedReviews
@@ -107,9 +80,8 @@ class Foxrate_Sdk_FoxrateRci_Processreviews
      */
     public function getProcessedReviews()
     {
-        if (null === $this->processedReviews)
-        {
-            throw new Exeption ("Reviews needs to be processed or retrieved at first.");
+        if (null === $this->processedReviews) {
+            //throw new Foxrate_Sdk_ApiBundle_Exception_ModuleException ("Reviews needs to be processed or retrieved at first.");
         }
 
         return $this->processedReviews;
@@ -144,15 +116,8 @@ class Foxrate_Sdk_FoxrateRci_Processreviews
 
     public function isError()
     {
-        $processedReviewContainer = $this->getProcessedReviews();
-        return isset($processedReviewContainer['error']);
+        $reviewPage = $this->getProcessedReviews();
+        return isset($reviewPage['error']);
     }
-
-    //this is not recommended!
-    private function getKernel()
-    {
-        return Mage::getModel('reviewcoreintegration/kernelloader')->getKernel();
-    }
-
 
 }

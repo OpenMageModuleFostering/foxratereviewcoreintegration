@@ -4,58 +4,53 @@ class Foxrate_ReviewCoreIntegration_IndexController extends Mage_Core_Controller
 {
     public function indexAction()
     {
-        $this->loadLayout();
-
-        if((bool) $this->getRequest()->getParam('ajax')){ // ?ajax=true
-            $this->getLayout()->getBlock('root')->setTemplate('foxrate/review/product/view/foxrate_ajax_list.phtml');  //changes the root template
+        if ($this->getRequest()->getParam('fnc') == 'cache_demand') {
+            $productId = $this->getRequest()->getParam('product');
+            echo $this->getKernel()->get('rci.review')->cacheOnDemandSingleProductReview($productId);
+            exit;
         }
 
-        $this->renderLayout();
+        if ((bool)$this->getRequest()->getParam('ajax')) { // ?ajax=true
+
+            try {
+                $this->loadLayout();
+
+                $this->getLayout()->getBlock('root')->setTemplate(
+                    'foxrate/review/foxrate_review_list.phtml'
+                );
+
+            } catch (Foxrate_Sdk_ApiBundle_Exception_ReviewsNotFoundException $e) {
+                $this->assign('foxrateFiError', $e->getMessage());
+            }
+
+            $this->renderLayout();
+        }
+
     }
 
     public function exportAction()
     {
-        $user = Mage::getStoreConfig('reviewcoreintegration/foxrateReviewCoreIntegration/fox_api_username');
-        $pass = Mage::getStoreConfig('reviewcoreintegration/foxrateReviewCoreIntegration/fox_api_password');
+        $kernel = $this->getKernel();
 
-        // connection_test
-        $connectionTest = $this->getRequest()->getParam('connection_test');
-        if(isset($connectionTest)){
-            $this->_connectionTest($user);
-        }
-
-        $foxrate = Mage::getModel('reviewcoreintegration/foxrate');
-
-        // check salt
-        $check = $this->getRequest()->getParam('check');
-        $checkSaltOK = $foxrate->check($check, $user, $pass);
-        if(empty($check) || !$checkSaltOK) {
-            $sMessage = $this->__('Bad salt data');
-            die($sMessage);
-        }
-
-        $days = (int)$this->getRequest()->getParam('days');
-        if(empty($days)) {
-            $days = 30;
-        }
-
-        $response = $foxrate->getOrders($days);
-
-        // output response
-        $sJson = json_encode($response);
-        $sJson = mb_convert_encoding($sJson, 'UTF-8', 'auto');
-
-        $status = $foxrate->uploadOrders($sJson, $user, $pass);
-        echo $status;
-
-        die();
+        $request = $kernel->get('core.request');
+        $response = $kernel->handle($request::createFromGlobals());
+        $response->send();
+        exit;
     }
 
-    protected function _connectionTest($user)
+    public function cronAction()
     {
-        header("Content-type: text/html; charset=utf-8");
-        $array['foxrate_auth_login'] = $user;
-        echo json_encode($array);
-        exit();
+        $foxProdRevs = $this->getKernel()->get('rci.review');
+        $status = $foxProdRevs->importProductReviews();
+        echo $status . "\n";
+        exit;
+    }
+
+    /**
+     * @return Foxrate_Kernel
+     */
+    private function getKernel()
+    {
+        return Mage::getModel('reviewcoreintegration/kernelloader')->getKernel();
     }
 }

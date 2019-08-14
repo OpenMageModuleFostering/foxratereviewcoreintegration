@@ -1,7 +1,7 @@
 <config>
     <modules>
         <Foxrate_ReviewCoreIntegration>
-            <version>3.3.3</version>
+            <version>3.5.16</version>
         </Foxrate_ReviewCoreIntegration>
     </modules>
 
@@ -116,6 +116,7 @@
                     <product_view>Foxrate_ReviewCoreIntegration_Block_Product_View</product_view>
                     <product_view_list>Foxrate_ReviewCoreIntegration_Block_Product_View_List</product_view_list>
                     <helper>Foxrate_ReviewCoreIntegration_Block_Helper</helper>
+                    <form>Foxrate_ReviewCoreIntegration_Block_Review_Form</form>
                 </rewrite>
             </review>
             <rating>

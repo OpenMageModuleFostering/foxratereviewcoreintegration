@@ -1,0 +1,6 @@
+<?php
+
+class Foxrate_Sdk_FoxrateRCI_Exception_RichSnippetHookNotFound extends Foxrate_Sdk_ApiBundle_Exception_ModuleException
+{
+
+}

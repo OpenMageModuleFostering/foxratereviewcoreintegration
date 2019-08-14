@@ -1,0 +1,124 @@
+<div class="poweredBy right light-grey text"><?php echo $this->__('FOXRATE_POWERED'); ?>&nbsp;&nbsp;
+    <img class="inset align-middle" src="<?php echo $this->getModuleUrl('foxrateProdRev', 'foxrate-logo.png'); ?>">
+</div>
+
+<div class="frRating-top" <?php if ($this->richSnippetIsActive()): ?>itemprop="aggregateRating" itemscope itemtype="http://schema.org/AggregateRating"<?php endif; ?>>
+    <div class="frStars inset">
+        <div class="frStars yellow"
+             style="width:<?php echo Mage::helper('reviewcoreintegration')->formatCalcPercent($foxrateReviewGeneralData['average'], 5); ?>%;"></div>
+    </div>
+    <div class="inset frStars-txt">
+        <span class="rating" itemprop="ratingValue"><?php echo $foxrateReviewGeneralData['average']; ?></span><strong><?php echo $this->__('FOXRATE_OF_FIVE'); ?></strong>
+        <?php echo $this->__('FOXRATE_FROM' ); ?> <span itemprop="reviewCount"><?php echo $foxrateReviewGeneralData['count']; ?></span>  <?php echo $this->__('FOXRATE_REVIEWS'); ?>
+        <br>
+        <?php if(!empty($foxrateReviewGeneralData['recommends']['count'])): ?>
+            <strong><?php echo $foxrateReviewGeneralData['recommends']['yes_percent']; ?>%</strong> <?php echo $this->__('FOXRATE_VALUE_FOR_MONEY'); ?>
+        <?php else: ?>
+            <?php echo $this->__('FOXRATE_VALUE_FOR_MONEY_NOT_ENOUGH'); ?>
+        <?php endif; ?>
+    </div>
+</div>
+
+<div class="frRating-left fleft">
+    <?php foreach ($foxrateReviewGeneralData['counts'] as $key => $value): ?>
+        <div class="rating-all">
+            <div class="inset align-middle">
+                <a class='starFilter'
+                   onclick="loadUserRevPage(1, '<?php echo $this->getAjaxControllerUrl(); ?>', '<?php  echo $this->getFoxrateProductId(); ?>', {star:<?php echo $key; ?>});"
+                   href="javascript:void(0)"><?php echo $key; ?> <?php echo $this->__('FOXRATE_STARS'); ?></a>
+                &nbsp;&nbsp;
+            </div>
+            <div class="rating-bar inset align-middle">
+                <div style="width:<?php echo Mage::helper('reviewcoreintegration')->formatCalcPercent($value, $foxrateReviewGeneralData['count']) ; ?>%;"
+                     class="rating-bar-fill"></div>
+            </div>
+            <div class="inset align-middle">(<?php echo $value; ?>)</div>
+        </div>
+    <?php endforeach; ?>
+</div>
+
+<div class="frRating-left fright generalDetails">
+    <table>
+        <tbody>
+        <tr>
+            <td width="160" class='avgRatingTitle'>
+                <strong><?php echo $this->__('FOXRATE_IMPRESSION' ); ?></strong></td>
+            <td>
+                <div class="stars-small left">
+                    <div style="width:<?php echo Mage::helper('reviewcoreintegration')->formatCalcPercent($foxrateReviewGeneralData['questions_averages']['usability'], 5) ; ?>%;"
+                         class="stars-small yellow left"></div>
+                </div>
+            </td>
+            <td class="rateValue"><?php echo $foxrateReviewGeneralData['questions_averages']['usability']; ?><span
+                    style="color:grey"><?php echo $this->__('FOXRATE_OF_FIVE' ); ?></span></td>
+        </tr>
+        <tr>
+            <td><?php echo $this->__('FOXRATE_QUALITY' ); ?></td>
+            <td>
+                <div class="stars-small left">
+                    <div style="width:<?php echo Mage::helper('reviewcoreintegration')->formatCalcPercent($foxrateReviewGeneralData['questions_averages']['quality'], 5) ; ?>%;"
+                         class="stars-small yellow left"></div>
+                </div>
+            </td>
+            <td class="rateValue"><?php echo $foxrateReviewGeneralData['questions_averages']['quality']; ?><span
+                    style="color:grey"><?php echo $this->__('FOXRATE_OF_FIVE' ); ?></span></td>
+        </tr>
+        <tr>
+            <td><?php echo $this->__('FOXRATE_VALUE_FOR_MONEY' ); ?></td>
+            <td>
+                <div class="stars-small left">
+                    <div style="width:<?php echo Mage::helper('reviewcoreintegration')->formatCalcPercent($foxrateReviewGeneralData['questions_averages']['price'], 5) ; ?>%;"
+                         class="stars-small yellow left"></div>
+                </div>
+            </td>
+            <td class="rateValue"><?php echo $foxrateReviewGeneralData['questions_averages']['price']; ?><span
+                    style="color:grey"><?php echo $this->__('FOXRATE_OF_FIVE' ); ?></span></td>
+        </tr>
+        </tbody>
+    </table>
+    <div class="recommends">
+        <strong><?php echo $foxrateReviewGeneralData['recommends']['yes']; ?></strong> <?php echo $this->__('FOXRATE_OF' ); ?> <?php echo $foxrateReviewGeneralData['recommends']['count']; ?> <?php echo $this->__('FOXRATE_RECCOMEND' ); ?> <?php echo $this->getTitle(); ?>
+    </div>
+</div>
+
+<div id="frReviewArea" style="opacity: 1;">
+
+    <div id="frReviewArea2">
+
+        <div class="fclear"></div>
+        <div class="frRating-top-all">
+            <div class="frRating-left fleft">
+                <div class="rating-all">
+                    <div id="showAll" class="inset align-middle hide">
+                        <a id='showAllExec'
+                           href="javascript:void(0)"><?php echo $this->__('FOXRATE_SHOWALL' ); ?></a>&nbsp;&nbsp;
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="frRating-right fright">&nbsp;</div>
+        <div class="fclear"></div>
+        <!--</div>-->
+
+        <div class="frRating-head pager">
+            <span class="frToolbarDetail"><?php echo $this->__('FOXRATE_PRODUCT_REVS' ); ?></span>
+            <span style="float:right;" class="frRatingSortSearch">
+                <?php echo $this->__('FOXRATE_SORTING' ); ?>
+                <select id="sortingExec" name="sort">
+                    <?php foreach ($this->getSortingCriteria() as $key=> $criteria): ?>
+                        <option value="<?php echo $key; ?>"><?php echo $criteria; ?></option>
+                    <?php endforeach; ?>
+                </select>
+                            &nbsp;
+                            <input type="text" class="frRatingSearchInput" value="" name="frsearch" id="frsearch">
+                            <input type="button" value="<?php echo $this->__('FOXRATE_GO' ); ?>" id="searchExec" name="submit">
+
+                            </span>
+
+            <div class="fclear"></div>
+        </div>
+
+    </div>
+</div>
+<!-- /1 -->

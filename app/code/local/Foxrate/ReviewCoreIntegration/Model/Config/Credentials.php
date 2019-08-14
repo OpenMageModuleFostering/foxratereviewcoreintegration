@@ -15,7 +15,7 @@ class Foxrate_ReviewCoreIntegration_Model_Config_Credentials extends Mage_Core_M
                     $this->getFieldsetDataValue('fox_api_username'), //user
                     $this->getFieldsetDataValue('fox_api_password') //password
                 );
-            } catch (Foxrate_Sdk_Api_Exception_Setup $e) {
+            } catch (Foxrate_Sdk_ApiBundle_Exception_Setup $e) {
                 Mage::getSingleton('adminhtml/session')->addError(Mage::helper('adminhtml')->__($e->getMessage()));
                 return;
             }
@@ -25,7 +25,7 @@ class Foxrate_ReviewCoreIntegration_Model_Config_Credentials extends Mage_Core_M
 
     public function afterLoad()
     {
-
+        parent::afterLoad();
     }
 
     /**

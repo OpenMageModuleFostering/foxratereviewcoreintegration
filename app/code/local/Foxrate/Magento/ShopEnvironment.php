@@ -5,13 +5,13 @@
  * This class retrieves a specific metadata for Foxrate from current shop
  */
 class Foxrate_Magento_ShopEnvironment
-    extends  Foxrate_Sdk_Api_Entity_AbstractShopEnvironment
-    implements Foxrate_Sdk_Api_Entity_ShopEnvironmentInterface
+    extends  Foxrate_Sdk_ApiBundle_Entity_AbstractShopEnvironment
+    implements Foxrate_Sdk_ApiBundle_Entity_ShopEnvironmentInterface
 {
 
     const BRIDGE_URI  = 'foxrate_api';
 
-    private $pluginVersion = '3.3.3';
+    private $pluginVersion = '3.5.16';
 
     /**
      * Returns the particular shop system version.
@@ -45,7 +45,7 @@ class Foxrate_Magento_ShopEnvironment
      */
     public function pluginVersion()
     {
-        return $this->pluginVersion;
+        return Mage::getConfig()->getNode()->modules->Foxrate_ReviewCoreIntegration->version;
     }
 
     /**
@@ -54,12 +54,46 @@ class Foxrate_Magento_ShopEnvironment
      */
     public function bridgeUrl()
     {
-        return Mage::getUrl('reviewcoreintegration_export/index/export');
+        return Mage::getUrl(
+            'reviewcoreintegration_export/index/export',
+            array(
+                '_store' => $this->getStoreId(),
+                '_store_to_url' => true
+            )
+        );
+    }
+
+    /**
+     * @return int
+     */
+    protected function getStoreId() {
+
+        if (strlen($code = Mage::getSingleton('adminhtml/config_data')->getStore())) // store level
+        {
+            $store_id = Mage::getModel('core/store')->load($code)->getId();
+        }
+        elseif (strlen($code = Mage::getSingleton('adminhtml/config_data')->getWebsite())) // website level
+        {
+            $website_id = Mage::getModel('core/website')->load($code)->getId();
+            $store_id = Mage::app()->getWebsite($website_id)->getDefaultStore()->getId();
+        }
+        else // default level
+        {
+            $store_id = 0;
+        }
+
+        return $store_id;
     }
 
     public function getShopLanguage()
     {
-        return 'en';
+        list($locale, $part2) = explode('_',  Mage::app()->getLocale()->getLocaleCode());
+        return $locale;
+    }
+
+    public function getShopName()
+    {
+        return Mage::getStoreConfig('general/store_information/name');
     }
 
 }

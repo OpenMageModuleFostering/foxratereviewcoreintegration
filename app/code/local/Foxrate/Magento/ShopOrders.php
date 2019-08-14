@@ -4,140 +4,176 @@ class Foxrate_Magento_ShopOrders {
 
     public $orders;
 
-    public function getOrders($iDays)
+    public function getOrders($days)
     {
-        $sNow = date('Y-m-d H:i:s');
+        $dateFrom = date('Y-m-d', strtotime("-$days day"));
+        $data = array();
 
-        $sSelect = "SELECT
-						o.id_order as orders_id,
-						o.date_add as order_date,
-						c.iso_code as order_currency,
-						l.iso_code as order_language,
-						o.id_customer as customers_id,
-						a.city as customers_city,
-						a.postcode as customers_postcode,
-						";
-        if(version_compare(_PS_VERSION_, '1.5.0.0') >= 0) {
-            $sSelect .= "s.name as customers_state,";
-        }
-        $sSelect .= "country.name as customers_country,
-						a.phone as customers_telephone,
-						cust.email as customers_email_address,
-						cust.id_gender as customers_gender,
-						cust.firstname as customers_firstname,
-						cust.lastname as customers_lastname,
-						o.id_lang as order_language_id
-					FROM
-						"._DB_PREFIX_."orders o
-				    LEFT JOIN
-				        "._DB_PREFIX_."currency c ON c.id_currency = o.id_currency
-				    LEFT JOIN
-				        "._DB_PREFIX_."lang l ON l.id_lang = o.id_lang
-				    LEFT JOIN
-				        "._DB_PREFIX_."customer cust ON cust.id_customer = o.id_customer
-				    LEFT JOIN
-				        "._DB_PREFIX_."address a ON a.id_address = o.id_address_invoice
-				        ";
-        if(version_compare(_PS_VERSION_, '1.5.0.0') >= 0) {
-            $sSelect .= " LEFT JOIN
-				        "._DB_PREFIX_."state s ON s.id_state = a.id_state ";
-        }
-        $sSelect .= "LEFT JOIN
-				        "._DB_PREFIX_."country_lang country ON (country.id_country = a.id_country AND country.id_lang = o.id_lang)
-					WHERE
-						o.date_add BETWEEN DATE_SUB('".$sNow."', INTERVAL ".$iDays." day) AND '".$sNow."'";
+        // get stores from which we will take orders
+        $storesId = $this->_getStoreIds();
 
-        $db = Db::getInstance();
-        $aOrders = $db->ExecuteS($sSelect);
-
-        // show error to screen
-        $err = $db->getMsgError($sSelect);
-        if(!empty($err)) {
-            die($err);
-        }
+        // get orders
+        $orders = Mage::getModel('sales/order')
+            ->getCollection()
+            ->addAttributeToSelect('*')
+            ->addFieldToFilter('store_id', array('in' => $storesId))
+            ->addFieldToFilter('status', array('in' => array('complete')))
+            ->addFieldToFilter('created_at', array('date' => true, 'from' => $dateFrom))
+            ->load();
 
         // no orders
-        if(empty($aOrders)) {
-            $aResponse['foxrate_auth_id'] = 1;
-            $aResponse['error'] = 'no_data_order';
+        if(empty($orders)) {
+            $response['foxrate_auth_id'] = 1;
+            $response['error'] = 'no_data_order';
         } else {
-            foreach($aOrders as $aOrder) {
-                // get customer
-                $customer = $this->_getCustomer($aOrder);
+            foreach($orders as $order) {
 
-                // get order
-                $order = $this->_getOrder($aOrder);
+                // get order data
+                $orderData = $this->_getOrder($order);
+                if(!empty($orderData)) {
+                    $oneOrderData['order'] = $orderData;
+                }
 
-                // get products
-                $products = $this->_getProducts($aOrder);
+                // get customer data
+                $customerData = $this->_getCustomer($order);
+                if(!empty($customerData)) {
+                    $oneOrderData['customer'] = $customerData;
+                }
 
-                $aData = array();
-                $aData['customer'] = $customer;
-                $aData['order'] = $order;
-                $aData['products'] = $products;
+                // get products data
+                $productsData = $this->_getProducts($order);
 
-                $aResponse[] = $aData;
+                if(!empty($productsData)) {
+                    $oneOrderData['products'] = $productsData;
+                }
+
+                $data[] = $oneOrderData;
+
             }
         }
 
-        return $aResponse;
+        return $data;
     }
 
-    protected function _getProducts($aOrder)
+    protected function _getStoreIds()
     {
-        $aProducts = array();
+        $currentStoreUrl = Mage::app()->getStore()->getBaseUrl(Mage_Core_Model_Store::URL_TYPE_WEB);
 
-        $sSelect = "SELECT
-                        d.product_id as products_id,
-                        d.product_name as products_name,
-                        d.product_price as final_price,
-                        ";
-        if(version_compare(_PS_VERSION_, '1.5.0.0') >= 0) {
-            $sSelect .= "d.product_ean13 as products_ean,";
-        }
-        $sSelect .= "   pl.link_rewrite
-                    FROM
-                        "._DB_PREFIX_."order_detail d
-                    LEFT JOIN
-                        "._DB_PREFIX_."product_lang pl ON (pl.id_product = d.product_id AND pl.id_lang = '".$aOrder['order_language_id']."')
-                    WHERE
-                        d.id_order = '".$aOrder['orders_id']."'";
+        $stores = Mage::getModel('core/store')
+            ->getCollection()
+            ->load();
 
-        $aData = Db::getInstance()->ExecuteS($sSelect);
-
-        $oLink = new Link();
-
-        if(!empty($aData)) {
-            foreach($aData as $aProduct) {
-                $aProduct['category_name'] = '';
-
-                $oProduct = new Product($aProduct['products_id']);
-
-                $sCategoryName = $this->_getCategoryName($oProduct, $aProduct['products_id'], $aOrder['order_language_id']);
-                if(!empty($sCategoryName)) {
-                    $aProduct['category_name'] = $sCategoryName;
-                }
-
-                // image
-                $sImage = '';
-                $aImages = $oProduct->getImages($aOrder['order_language_id']);
-                if(!empty($aImages[0])) {
-                    $aProduct['products_image'] = $oLink->getImageLink($aProduct['link_rewrite'], $aImages[0]['id_image']);
-                }
-
-                // model
-                $aProduct['products_model'] = ''; // there's no such in presta
-
-                // url
-                $aProduct['products_url'] = $oLink->getProductLink($aProduct['products_id']);
-
-                unset($aProduct['link_rewrite']);
-
-                $aProducts[] = $aProduct;
+        // get stores with the same URL as the current store
+        foreach($stores as $store) {
+            $storeUrl = $store->getBaseUrl(Mage_Core_Model_Store::URL_TYPE_WEB);
+            if($storeUrl == $currentStoreUrl) {
+                $storeIds[] = $store->getId();
             }
         }
 
-        return $aProducts;
+        return $storeIds;
+    }
+
+    protected function _getProducts($order)
+    {
+        $data = array();
+
+        $orderProducts = $order->getAllItems();
+
+        $productIds = array();
+        $productPrices = array();
+        foreach($orderProducts as $orderProduct) {
+            $productIds[] = $orderProduct->getProductId();
+            $productPrices[$orderProduct->getProductId()] = $orderProduct->getRowTotal();
+        }
+
+        $products = Mage::getModel('catalog/product')->getCollection()
+            ->addAttributeToSelect('name')
+            ->addAttributeToFilter('entity_id', array('in' => $productIds))
+            ->load();
+
+        if(count($products) > 0) {
+            foreach($products as $product) {
+
+                $productPrice = $productPrices[$product->getId()];
+                if($productPrice > 0) {
+
+                    $categories = $this->_getProductCategories($product);
+
+                    $image = $product->getImageUrl();
+                    $url = $product->getProductUrl();
+
+                    $productData['products_id'] = $product->getId();
+                    $productData['products_model'] = $product->getSku();
+                    $productData['products_name'] = trim($product->getName());
+                    $productData['products_image'] = $image;
+                    $productData['products_url'] = $url;
+                    $productData['final_price'] = $productPrice;
+                    $productData['products_currency'] = $order->getOrderCurrencyCode();
+                    $productData['categorie_name'] = trim($categories);
+
+                    $parentIds = $this->getProductParentIds($product);
+                    if (!empty($parentIds)) {
+                        $productData['variant_ids'] = $this->getVariantIdsByParentIds($parentIds);
+                    }
+
+                    $data[] = $productData;
+                }
+            }
+        }
+
+        return $data;
+    }
+
+    protected function getStoreId() {
+
+        if (strlen($code = Mage::getSingleton('adminhtml/config_data')->getStore())) // store level
+        {
+            $store_id = Mage::getModel('core/store')->load($code)->getId();
+        }
+        elseif (strlen($code = Mage::getSingleton('adminhtml/config_data')->getWebsite())) // website level
+        {
+            $website_id = Mage::getModel('core/website')->load($code)->getId();
+            $store_id = Mage::app()->getWebsite($website_id)->getDefaultStore()->getId();
+        }
+        else // default level
+        {
+            $store_id = 0;
+        }
+
+        return $store_id;
+    }
+
+    protected function _getProductCategories($product)
+    {
+        $catCollection = $product->getCategoryCollection();
+
+        if(count($catCollection) > 0) {
+            $catIds = array();
+
+            foreach($catCollection as $catColl) {
+                $catIds[] = $catColl->getEntityId();
+            }
+
+            $cats = Mage::getModel('catalog/category')->getCollection()
+                ->addAttributeToSelect('name')
+                ->addAttributeToFilter('entity_id', array('in' => $catIds))
+                ->load();
+
+            if(count($cats) > 0) {
+                $catStr = '';
+
+                foreach($cats as $cat){
+                    $catStr .= $cat->getName() . '|';
+                }
+
+                $catStr = rtrim($catStr, '|');
+
+                return $catStr;
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -179,44 +215,81 @@ class Foxrate_Magento_ShopOrders {
         return $sName;
     }
 
-    protected function _getCustomer($aOrder)
+    protected function _getCustomer($order)
     {
-        $customer = array();
+        $data = array();
 
-        $sGender = '';
-        if($aOrder['customers_gender'] == 2) {
-            $sGender = 'f';
-        } else {
-            $sGender = 'm';
+        $address = $order->getBillingAddress();
+
+        // gender
+        $genderValue = $address->getCustomerGender();
+        $gender = '';
+        if($genderValue == '123') {
+            $gender = 'm'; // male
+        } elseif($genderValue == '124') {
+            $gender = 'w'; // female
         }
 
-        $customer['customers_id'] = $aOrder['customers_id'];
-        $customer['customers_city'] = $aOrder['customers_city'];
-        $customer['customers_country'] = $aOrder['customers_country'];
-        $customer['customers_email_address'] = $aOrder['customers_email_address'];
-        $customer['customers_gender'] = $sGender;
-        $customer['customers_firstname'] = $aOrder['customers_firstname'];
-        $customer['customers_lastname'] = $aOrder['customers_lastname'];
+        $data['customers_id'] = $order->getCustomerId();
+        $data['customers_city'] = $address->getCity();
+        $data['customers_country'] = $address->getCountryId();
+        $data['customers_email_address'] = $order->getCustomerEmail();
+        $data['customers_gender'] = $gender;
+        $data['customers_firstname'] = $order->getCustomerFirstname();
+        $data['customers_lastname'] = $order->getCustomerLastname();
 
-        return $customer;
+        return $data;
     }
 
-    protected function _getOrder($aOrder)
+    protected function _getOrder($order)
     {
-        $order = array();
+        $data = array();
 
-        $sGender = '';
-        if($aOrder['customers_gender'] == 2) {
-            $sGender = 'f';
-        } elseif($aOrder['customers_gender'] == 1) {
-            $sGender = 'm';
-        }
+        $data['orders_id'] = $order->getId();
+        $data['order_date'] = strtotime($order->getCreatedAt());
+        $data['order_currency'] = $order->getOrderCurrencyCode();
+        $data['order_language'] = strtolower(substr(Mage::getStoreConfig('general/locale/code', $order->getStoreId()), 0, 2));
 
-        $order['orders_id'] = $aOrder['orders_id'];
-        $order['order_date'] = strtotime($aOrder['order_date']);
-        $order['order_currency'] = $aOrder['order_currency'];
-        $order['order_language'] = $aOrder['order_language'];
-
-        return $order;
+        return $data;
     }
+
+    protected function getProductParentIds($product)
+    {
+        $parentIds = Mage::getModel('catalog/product_type_configurable')
+            ->getParentIdsByChild($product->getId());
+
+        if ($product->isConfigurable()) {
+            $parentIds[] = $product->getId();
+        }
+        return $parentIds;
+    }
+
+    protected function getVariantIdsByParentIds($parentIds)
+    {
+        $parents = Mage::getModel('catalog/product')
+            ->getCollection()->addAttributeToFilter('entity_id', array('in' => $parentIds))
+            ->load();
+
+        $variantIds = array();
+        foreach ($parents as $parent) {
+            if ($parent->isConfigurable()) {
+                $variantIds = array_merge($variantIds, $parent->getTypeInstance()->getUsedProductIds());
+            }
+        }
+        return array_unique($variantIds);
+    }
+
+    /**
+     * Check if it is Foxrate developer enviroment.
+     * @return bool
+     */
+    public function isDevEnviroment()
+    {
+        return Mage::getIsDeveloperMode() == true && strpos($_SERVER['SERVER_NAME'], '.vm');
+    }
+
+    protected function pluginVersion() {
+        return Mage::getConfig()->getNode()->modules->Foxrate_ReviewCoreIntegration->version;
+    }
+
 }

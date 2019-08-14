@@ -1,14 +1,16 @@
 <?php
 
 
-class Foxrate_Magento_Credentials implements Foxrate_Sdk_Api_Components_ShopCredentialsInterface
+class Foxrate_Magento_Credentials implements
+    Foxrate_Sdk_ApiBundle_Components_ShopCredentialsInterface,
+    Foxrate_Sdk_ApiBundle_Components_SavedCredentialsInterface
 {
 
     public $authenticator;
 
     public $config;
 
-    function __construct($config)
+    function __construct(Foxrate_Sdk_FoxrateRCI_ConfigInterface $config)
     {
         $this->config = $config;
     }
@@ -18,7 +20,8 @@ class Foxrate_Magento_Credentials implements Foxrate_Sdk_Api_Components_ShopCred
      */
     public function  saveUserCredentials()
     {
-        //skip this. Magento will save.
+        $this->config->saveShopConfVar('foxrateUsername', $this->postUsername());
+        $this->config->saveShopConfVar('foxratePassword', $this->postPasword());
     }
 
     /**
@@ -27,7 +30,8 @@ class Foxrate_Magento_Credentials implements Foxrate_Sdk_Api_Components_ShopCred
      */
     public function postUsername()
     {
-        return $this->getFieldsetDataValue('fox_api_username');
+        $groups = Mage::app()->getRequest()->getParam('groups');
+        return $groups['foxrateReviewCoreIntegration']['fields']['fox_api_username']['value'];
     }
 
     /**
@@ -36,7 +40,8 @@ class Foxrate_Magento_Credentials implements Foxrate_Sdk_Api_Components_ShopCred
      */
     public function postPasword()
     {
-        return $this->getFieldsetDataValue('fox_api_password');
+        $groups = Mage::app()->getRequest()->getParam('groups');
+        return $groups['foxrateReviewCoreIntegration']['fields']['fox_api_password']['value'];
     }
 
     /**
@@ -47,8 +52,17 @@ class Foxrate_Magento_Credentials implements Foxrate_Sdk_Api_Components_ShopCred
      */
     public function saveShopId($shopId)
     {
-        $this->config->saveShopConfVar('foxrateShopId', 'shop_' . $shopId);
+        $this->config->saveShopConfVar('foxrateShopId', $shopId);
     }
 
+    public function savedUsername()
+    {
+        return Mage::getStoreConfig('reviewcoreintegration/foxrateReviewCoreIntegration/fox_api_username');
+    }
+
+    public function  savedPassword()
+    {
+        return Mage::getStoreConfig('reviewcoreintegration/foxrateReviewCoreIntegration/fox_api_password');
+    }
 
 }

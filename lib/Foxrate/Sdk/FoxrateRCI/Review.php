@@ -1,31 +1,28 @@
 <?php
-//ini_set('error_reporting', 0);
-set_time_limit(0);
 
-class Foxrate_Sdk_FoxrateRCI_Review extends Foxrate_Sdk_FoxrateRCI_ReviewAbstract implements Foxrate_Sdk_FoxrateRCI_ReviewInterface
+class Foxrate_Sdk_FoxrateRCI_Review extends Foxrate_Sdk_FoxrateRCI_Settings
 {
-
-    public function __construct($config, $connector, Foxrate_Sdk_FoxrateRci_DataManager $dataManager)
+    public function __construct(
+        Foxrate_Sdk_FoxrateRCI_ConfigInterface $config,
+        Foxrate_Sdk_ApiBundle_Controllers_Authenticator $connector,
+        Foxrate_Sdk_FoxrateRCI_DataManager $dataManager,
+        Foxrate_Sdk_FoxrateRCI_ProductInterface $shopProduct,
+        Foxrate_Sdk_ApiBundle_Resources_ApiEnvironmentInterface $environment
+    )
     {
         $this->config = $config;
         $this->foxrateConnector = $connector;
         $this->dataManager = $dataManager;
+        $this->shopProduct = $shopProduct;
+        $this->environment = $environment;
 
         $this->setSettings();
-
-        $this->enableDevMode();
     }
 
     public function useDbCompatibleMode()
     {
         return false;
     }
-
-    public function getRemoteAddr()
-    {
-        return $this->_getData('_remote_addr');
-    }
-
 
     /**
      * Get general review info about a single product
@@ -35,26 +32,45 @@ class Foxrate_Sdk_FoxrateRCI_Review extends Foxrate_Sdk_FoxrateRCI_ReviewAbstrac
      */
     public function getReviewTotalDataById($sProductId)
     {
+        $objData = $this->dataManager->loadProductsRevsGeneral_Cache($sProductId);
+        $this->checkReviewValid($objData);
+        $generalRevInfo = $this->convertObjectToArray($objData);
+        $generalRevInfo = $this->sortReviewCounts($generalRevInfo);
+
+        return $generalRevInfo;
+    }
+
+    /**
+     * General review info about a single product
+     *
+     * @param $sProductId
+     * @return array
+     */
+    public function getFoxrateCategoryReviews($sProductId)
+    {
+        $errors = $this->getCategoryErrorMap();
+
         try {
             $objData = $this->dataManager->loadProductsRevsGeneral_Cache($sProductId);
-            $this->checkReviewValid($objData);
             $generalRevInfo = $this->convertObjectToArray($objData);
-            krsort($generalRevInfo['counts']);
-        } catch (Exception $e) {
-            $generalRevInfo = array("error" => $e->getMessage());
+            $generalRevInfo = $this->sortReviewCounts($generalRevInfo);
+        } catch (Foxrate_Sdk_ApiBundle_Exception_ReviewsNotFoundException $e) {
+            $errors['Catalog_display'] = 'false';
+            return $errors;
         }
+        $generalRevInfo = array_merge($generalRevInfo, $errors);
         return $generalRevInfo;
     }
 
     /**
      * Checks if given review is valid
      * @param $review
-     * @throws Exception
+     * @throws Foxrate_Sdk_ApiBundle_Exception_ReviewsNotFoundException
      */
     protected function checkReviewValid($review)
     {
         if ($review->count == 0) {
-            throw new Exception('Product review is not valid.');
+            throw new Foxrate_Sdk_ApiBundle_Exception_ReviewsNotFoundException ('Reviews for this product are not found.');
         }
     }
 
@@ -74,7 +90,7 @@ class Foxrate_Sdk_FoxrateRCI_Review extends Foxrate_Sdk_FoxrateRCI_ReviewAbstrac
                 $this->checkUserExist();
                 $productIds = $this->getProductIds();
                 $this->getSaveProductsReviews($productIds, true);
-            } catch (Exception $e) {
+            } catch (Foxrate_Sdk_ApiBundle_Exception_ModuleException $e) {
                 return $this->config->writeToLog("Error: " . $e->getMessage());
             }
             $this->updateCacheImportDate();
@@ -88,10 +104,10 @@ class Foxrate_Sdk_FoxrateRCI_Review extends Foxrate_Sdk_FoxrateRCI_ReviewAbstrac
      * locks the update and starts import. Locks so other users wont starts the import again when it is started.
      * Lock has a timeout, if something breaks, the import can be started again when the locks expires.
      */
-    public function cacheOnDemand_SingleProdRev($productId)
+    public function cacheOnDemandSingleProductReview($productId)
     {
         $isExpired = $this->hasCacheExpired_CacheDemand($productId);
-        $isLocked = $this->isCacheLocked_CacheDemand($productId);
+        $isLocked = $this->dataManager->isCacheLocked_CacheDemand($productId);
         if (!$isExpired) {
             return "Cache On demand for this product has not expired yet. Product ID: " . $productId;
         }
@@ -99,29 +115,16 @@ class Foxrate_Sdk_FoxrateRCI_Review extends Foxrate_Sdk_FoxrateRCI_ReviewAbstrac
             return "Cache import is already in progress for product: " . $productId;
         }
         try {
-            $this->lockOnDemandCache_Product($productId);
+            $this->dataManager->lockOnDemandCacheProduct($productId);
             $prodId = array(array($productId));
             $this->getSaveProductsReviews($prodId, false);
-            $this->dataManager->unlockOnDemandCache_Product($productId);
-        } catch (Exception $ex) {
-            $this->dataManager->unlockOnDemandCache_Product($productId);
+            $this->dataManager->unlockOnDemandCacheProduct($productId);
+        } catch (Foxrate_Sdk_ApiBundle_Exception_ModuleException $ex) {
+            $this->dataManager->unlockOnDemandCacheProduct($productId);
             return $this->config->writeToLog("Error: " . $ex->getMessage());
         }
         return "Cache On Demand Import was successfull for product: " . $productId;
     }
-
-
-    /**
-     * Creates product lock for reviews, so no other import instances would be launched, for the same product
-     * @param $prodId
-     */
-    protected function lockOnDemandCache_Product($prodId)
-    {
-        $data = json_encode(array('lock_time' => strtotime('now')));
-        $name = $prodId . ".lock";
-        $this->storeToMainCache($name, $data, 'json');
-    }
-
 
     /**
      * Updates date when last import finished successfully
@@ -132,15 +135,16 @@ class Foxrate_Sdk_FoxrateRCI_Review extends Foxrate_Sdk_FoxrateRCI_ReviewAbstrac
     }
 
     /**
-     * Gets product ID's, on failure throws Exception
+     * Gets product ID's, on failure throws Foxrate_Sdk_ApiBundle_Exception_ModuleException
      * @return Object
-     * @throws Exception
+     * @throws Foxrate_Sdk_ApiBundle_Exception_ModuleException
      */
     protected function getProductIds()
     {
-        $productIds = $this->loadProductIds();
+        $productIds = $this->shopProduct->getProductsIds();
+
         if (!$productIds) {
-            throw new Exception("No products were found in database");
+            throw new Foxrate_Sdk_ApiBundle_Exception_ModuleException("No products were found in database");
         }
         return $productIds;
     }
@@ -148,15 +152,16 @@ class Foxrate_Sdk_FoxrateRCI_Review extends Foxrate_Sdk_FoxrateRCI_ReviewAbstrac
     /**
      * Downloads product reviews from Foxrate and saves them in cache's temp directory
      * @param $productIds
-     * @throws Exception
+     * @param $fullImport
+     * @throws Foxrate_Sdk_ApiBundle_Exception_ModuleException
      */
     protected function getSaveProductsReviews($productIds, $fullImport)
     {
         $storeTempCache = false;
         try {
             $this->createDir($this->config->getCachedReviewsPathTemp());
-        } catch (Exception $e) {
-            throw new Exception($e->getMessage() . '. Please make shure your cache dir is writable.');
+        } catch (Foxrate_Sdk_ApiBundle_Exception_ModuleException $e) {
+            throw new Foxrate_Sdk_ApiBundle_Exception_ModuleException($e->getMessage() . '. Please make sure your cache dir is writable.');
         }
 
         if ($fullImport) {
@@ -192,10 +197,8 @@ class Foxrate_Sdk_FoxrateRCI_Review extends Foxrate_Sdk_FoxrateRCI_ReviewAbstrac
                     $productRevGen = array('count' => '0');
                 }
                 $this->storeToCache($productId . ".gener", json_encode($productRevGen), $storeTempCache);
-            } catch (Exception $e) {
-                $this->config->writeToLog(
-                    "Product with id " . $productId . " reviews not imported. " . $e->getMessage()
-                );
+            } catch (Foxrate_Sdk_ApiBundle_Exception_ModuleException $e) {
+                throw new Foxrate_Sdk_ApiBundle_Exception_ModuleException ("Product reviews with id " . $productId . " not imported. " . $e->getMessage());
             }
         }
 
@@ -219,15 +222,17 @@ class Foxrate_Sdk_FoxrateRCI_Review extends Foxrate_Sdk_FoxrateRCI_ReviewAbstrac
 
     /**
      * Copies contents from source to destination directory
-     * @param string $source
-     * @param string $destination
-     * @return null
+     * @param $source
+     * @param $destination
+     *
+     * @return bool
+     * @throws Foxrate_Sdk_ApiBundle_Exception_ModuleException
      */
     protected function copyDirContents($source, $destination)
     {
         $success = true;
         if (!is_dir($source)) {
-            throw new Exception("Directory copying failed, source directory does not exist: " . $source);
+            throw new Foxrate_Sdk_ApiBundle_Exception_ModuleException("Directory copying failed, source directory does not exist: " . $source);
         }
         $this->createDir($destination);
         $fileList = scandir($source);
@@ -264,8 +269,7 @@ class Foxrate_Sdk_FoxrateRCI_Review extends Foxrate_Sdk_FoxrateRCI_ReviewAbstrac
 
             if (!is_dir($path)) {
                 $result = @unlink($path);
-                if (!$result && $singleFile != "." && $singleFile != ".." && $singleFile != $this->config->getCachedReviewsPath(
-                    )
+                if (!$result && $singleFile != "." && $singleFile != ".." && $singleFile != $this->config->getCachedReviewsPath()
                 ) {
                     $this->config->writeToLog("Warning: Failed to remove file: " . $path);
                     $success = false;
@@ -288,15 +292,27 @@ class Foxrate_Sdk_FoxrateRCI_Review extends Foxrate_Sdk_FoxrateRCI_ReviewAbstrac
             $res = $this->recursive_mkdir($dir, 0777, true);
         }
         if (!$res) {
-            throw new Exception("Failed to create directory structure: " . $dir);
+            throw new Foxrate_Sdk_ApiBundle_Exception_ModuleException("Failed to create directory structure: " . $dir);
         }
     }
 
+    /**
+     * Make a recursive dir from $path
+     * We must check from document_root , as some user are using shared hosting,
+     * and could have open base dir restriction
+     *
+     * @param $path
+     * @param int $mode
+     *
+     * @return bool
+     */
     function recursive_mkdir($path, $mode = 0777)
     {
-        $dirs = explode(DIRECTORY_SEPARATOR, $path);
+        $websiteRoot = $_SERVER["DOCUMENT_ROOT"];
+        $explodePath =  str_replace($websiteRoot, '', $path);
+        $dirs = explode(DIRECTORY_SEPARATOR, $explodePath);
         $count = count($dirs);
-        $path = '';
+        $path = $websiteRoot;
         for ($i = 0; $i < $count; ++$i) {
             if (!$dirs[$i]) {
                 continue;
@@ -331,21 +347,6 @@ class Foxrate_Sdk_FoxrateRCI_Review extends Foxrate_Sdk_FoxrateRCI_ReviewAbstrac
         }
     }
 
-    /**
-     * Stores given data to main cache
-     * @param $name
-     * @param $data
-     * @param string $format
-     * @throws Exception
-     */
-    protected function storeToMainCache($name, $data, $format = "json")
-    {
-        $pathName = $this->config->getCachedReviewsPath() . "/" . $name . "." . $format;
-        $saveResponse = file_put_contents($pathName, $data);
-        if (!$saveResponse) {
-            $this->config->writeToLog("Warning: Couldn't save data to main cache directory: " . $pathName);
-        }
-    }
 
     /**
      * Gets single product review, builds api call, then uses it on curl with basic auth.
@@ -359,7 +360,7 @@ class Foxrate_Sdk_FoxrateRCI_Review extends Foxrate_Sdk_FoxrateRCI_ReviewAbstrac
         $result = $this->makeRequestBasicAuth($apiCall, $this->sFoxrateAPIUsername, $this->sFoxrateAPIPassword);
 
         if ($result === null) {
-            throw new Exception('No result returned for product id: ' . $productId);
+            throw new Foxrate_Sdk_ApiBundle_Exception_ModuleException('No result returned for product id: ' . $productId);
         }
 
         return $result;
@@ -382,7 +383,7 @@ class Foxrate_Sdk_FoxrateRCI_Review extends Foxrate_Sdk_FoxrateRCI_ReviewAbstrac
     /**
      * Load Seller id, which is needed for multiple api calls
      *
-     * @throws Exception
+     * @throws Foxrate_Sdk_ApiBundle_Exception_ModuleException
      */
     protected function loadSellerId_Foxrate()
     {
@@ -393,7 +394,7 @@ class Foxrate_Sdk_FoxrateRCI_Review extends Foxrate_Sdk_FoxrateRCI_ReviewAbstrac
         $resultObject = $this->makeRequestBasicAuth($apiCall, $this->sFoxrateAPIUsername, $this->sFoxrateAPIPassword);
 
         if (empty($resultObject->id)) {
-            throw new Foxrate_Sdk_Api_Exception_Communicate("Couldn't get current seller Id from Foxrate. Url: " . $apiCall);
+            throw new Foxrate_Sdk_ApiBundle_Exception_Communicate("Couldn't get current seller Id from Foxrate. Url: " . $apiCall);
         }
         $myConfig->saveShopConfVar('foxrateSellerId', $resultObject->id, 'string');
         $this->sFoxrateAPI2sellerId = $resultObject->id;
@@ -407,7 +408,7 @@ class Foxrate_Sdk_FoxrateRCI_Review extends Foxrate_Sdk_FoxrateRCI_ReviewAbstrac
     {
         $sellerId = $this->config->getConfigParam('foxrateSellerId');
 
-        if (is_null($sellerId)) {
+        if (empty($sellerId)) {
             $this->loadSellerId_Foxrate();
         } else {
             $this->sFoxrateAPI2sellerId = $sellerId;
@@ -437,7 +438,7 @@ class Foxrate_Sdk_FoxrateRCI_Review extends Foxrate_Sdk_FoxrateRCI_ReviewAbstrac
      * the import is being ran on
      *
      * @return int
-     * @throws Exception
+     * @throws Foxrate_Sdk_ApiBundle_Exception_ModuleException
      */
     protected function loadShopId_Foxrate()
     {
@@ -452,12 +453,11 @@ class Foxrate_Sdk_FoxrateRCI_Review extends Foxrate_Sdk_FoxrateRCI_ReviewAbstrac
         $apiCall = $this->apiCallBuilder("currentSellerChannelsId", "json");
         $ShopIdAndUrl = $this->makeRequestBasicAuth($apiCall, $this->sFoxrateAPIUsername, $this->sFoxrateAPIPassword);
         if (!$ShopIdAndUrl[0]->id) {
-            throw new Exception("Couldn't get shop Id from Foxrate. Url: " . $apiCall);
+            throw new Foxrate_Sdk_ApiBundle_Exception_ModuleException("Couldn't get shop Id from Foxrate. Url: " . $apiCall);
         }
         $ShopId = $this->findShopIdByUrlMatch($ShopIdAndUrl);
         if (!$ShopId) {
-            throw new Exception("The url received from Foxrate's api does not match this domain. This url '" . $this->config->getShopUrl(
-            ) . "'");
+            throw new Foxrate_Sdk_ApiBundle_Exception_ModuleException("The url received from Foxrate's api does not match this domain. This url '" . $this->config->getShopUrl() . "'");
         }
         $myConfig->saveShopConfVar('foxrateShopId', $ShopId, 'string');
         $this->sFoxrateAPIShopId = $ShopId;
@@ -472,7 +472,7 @@ class Foxrate_Sdk_FoxrateRCI_Review extends Foxrate_Sdk_FoxrateRCI_ReviewAbstrac
         $domain = preg_replace("/(http:\/\/|https:\/\/|www.)/", "", $domainRaw);
 
         foreach ($ShopIdAndUrl as $singleBlock) {
-            $cleanUrl = preg_replace("/(http:\/\/|https:\/\/|www.)/", "", $singleBlock->name);
+            $cleanUrl = preg_replace("/(http:\/\/|https:\/\/|www.)/", "", $singleBlock->url);
             $matchResult = preg_match("/" . $cleanUrl . ".*|.*hotdigital.*/", $domain);
             if ($matchResult == 1 || $matchResult == true) {
                 return $singleBlock->id;
@@ -488,7 +488,7 @@ class Foxrate_Sdk_FoxrateRCI_Review extends Foxrate_Sdk_FoxrateRCI_ReviewAbstrac
      * @param string $format
      * @param bool $params
      * @return string
-     * @throws Exception
+     * @throws Foxrate_Sdk_ApiBundle_Exception_ModuleException
      */
     protected function apiCallBuilder($method, $format = "json", $params = false)
     {
@@ -503,7 +503,7 @@ class Foxrate_Sdk_FoxrateRCI_Review extends Foxrate_Sdk_FoxrateRCI_ReviewAbstrac
                 break;
             case "productGeneral":
                 if (!is_array($params)) {
-                    throw new Exception('Params not set!');
+                    throw new Foxrate_Sdk_ApiBundle_Exception_ModuleException('Params not set!');
                 }
                 $call = $callBase . "/" . $this->sFoxrateAPI2sellers . "/" . $this->sFoxrateAPI2sellerId . "/" . $this->sFoxrateAPI2products . "/" . $params["productId"] . "/" . $this->sFoxrateAPI2ratings;
                 $extraParams = $this->apiCallOptionalParamsBuilder();
@@ -513,21 +513,21 @@ class Foxrate_Sdk_FoxrateRCI_Review extends Foxrate_Sdk_FoxrateRCI_ReviewAbstrac
                 break;
             case 'voteProductReview':
                 if (!is_array($params)) {
-                    throw new Exception('Params not set!');
+                    throw new Foxrate_Sdk_ApiBundle_Exception_ModuleException('Params not set!');
                 }
                 $call = $callBase . "/" . $this->sFoxrateAPI2sellers . "/" . $this->sFoxrateAPI2sellerId . "/" . $this->sFoxrateAPI2products;
                 $call .= "/" . $this->sFoxrateAPI2reviews . "/" . $params["reviewId"] . "/" . $this->sFoxrateAPI2vote;
                 break;
             case 'abuseReview':
                 if (!is_array($params)) {
-                    throw new Exception('Params not set!');
+                    throw new Foxrate_Sdk_ApiBundle_Exception_ModuleException('Params not set!');
                 }
                 $call = $callBase . "/" . $this->sFoxrateAPI2sellers . "/" . $this->sFoxrateAPI2sellerId . "/" . $this->sFoxrateAPI2products;
                 $call .= "/" . $this->sFoxrateAPI2reviews . "/" . $params["reviewId"] . "/" . $this->sFoxrateAPI2abuse;
                 break;
             case "productReviews":
                 if (!is_array($params)) {
-                    throw new Exception('Params not set!');
+                    throw new Foxrate_Sdk_ApiBundle_Exception_ModuleException('Params not set!');
                 }
                 $call = $callBase . "/" . $this->sFoxrateAPI2sellers . "/" . $this->sFoxrateAPI2sellerId . "/" . $this->sFoxrateAPI2products . "/" . $params["productId"];
                 $call .= "/" . $this->sFoxrateAPI2reviews;
@@ -584,19 +584,19 @@ class Foxrate_Sdk_FoxrateRCI_Review extends Foxrate_Sdk_FoxrateRCI_ReviewAbstrac
 
 
     /**
-     * Throws exception if user does not exist
-     * @throws Exception
+     * Throws Foxrate_Sdk_ApiBundle_Exception_ModuleException if user does not exist
+     * @throws Foxrate_Sdk_ApiBundle_Exception_ModuleException
      */
     protected function checkUserExist()
     {
         if (!$this->sFoxrateAPIUsername) {
-            throw new Exception("Foxrate Api Username is not set");
+            throw new Foxrate_Sdk_ApiBundle_Exception_ModuleException("Foxrate Api Username is not set");
         }
         if (!$this->sFoxrateAPIPassword) {
-            throw new Exception("Foxrate Api Password is not set");
+            throw new Foxrate_Sdk_ApiBundle_Exception_ModuleException("Foxrate Api Password is not set");
         }
-        if (!$this->foxrateConnector->isUserExist($this->sFoxrateAPIUsername, $this->sFoxrateAPIPassword)) {
-            throw new Exception("User is not found in Foxrate: Username - '" . $this->sFoxrateAPIUsername . "' password - '" . $this->sFoxrateAPIPassword . "'");
+        if (!$this->foxrateConnector->wrapIsUserExist($this->sFoxrateAPIUsername, $this->sFoxrateAPIPassword)) {
+            throw new Foxrate_Sdk_ApiBundle_Exception_ModuleException("User is not found in Foxrate: Username - '" . $this->sFoxrateAPIUsername . "' password - '" . $this->sFoxrateAPIPassword . "'");
         }
     }
 
@@ -671,22 +671,22 @@ class Foxrate_Sdk_FoxrateRCI_Review extends Foxrate_Sdk_FoxrateRCI_ReviewAbstrac
         $result = $client->request();
 
         try {
-            return $this->handleRequest($result);
+            return $this->handleMageRequest($result);
         } catch (Zend_Http_Client_Exception $e) {
             $error_message = 'There was error with API. ' . $e->getMessage();
             $this->config->writeToLog($error_message);
-            throw new Exception ($error_message);
+            throw new Foxrate_Sdk_ApiBundle_Exception_ModuleException ($error_message);
         }
 
     }
 
-    protected function handleRequest(Zend_Http_Response $result)
+    protected function handleMageRequest(Zend_Http_Response $result)
     {
         if ($result->isError()) {
             $bodyObject = json_decode($result->getRawBody());
             $error_message = "Api returned error with message: " . $bodyObject->status_text;
             $this->config->writeToLog($error_message);
-            throw new Exception($error_message);
+            throw new Foxrate_Sdk_ApiBundle_Exception_ModuleException($error_message);
         }
 
         return json_decode($result->getRawBody());
@@ -720,20 +720,24 @@ class Foxrate_Sdk_FoxrateRCI_Review extends Foxrate_Sdk_FoxrateRCI_ReviewAbstrac
      */
     protected function hasCacheExpired()
     {
-        //fixme
         return true;
+    }
 
-        $lastImportDate = $this->config->getConfigParam($this->sFoxrateConfNameImportDate);
-        $expireDate = strtotime("- {$this->sReviewsExpirePeriod} hours");
-        if (!$lastImportDate) {
-            return true;
-        }
+    /**
+     * @return array
+     */
+    public function disabledSummaryError()
+    {
+        return array("error" => 'Summary is turned off');
+    }
 
-        if ($lastImportDate <= $expireDate) {
-            return true;
-        } else {
-            return false;
-        }
+    /**
+     * @param $isAllowed
+     * @return bool
+     */
+    public function isDisabled($isAllowed)
+    {
+        return $isAllowed == 'off' || is_null($isAllowed);
     }
 
     /**
@@ -815,25 +819,22 @@ class Foxrate_Sdk_FoxrateRCI_Review extends Foxrate_Sdk_FoxrateRCI_ReviewAbstrac
     public function loadProductsAllRevs_Cache($prodId)
     {
         $pages = 0;
-        $reviewArr = array();
-        $reviewArr[$this->sAPIResRev] = array();
-        $reviewMain = array();
+        $reviewCollection = array();
 
         do {
             $pages++;
             $reviewsPage = $this->dataManager->loadCachedProductReviews($prodId, $pages);
             if ($reviewsPage) {
-                $reviewArr[$this->sAPIResRev] = array_merge(
-                    $reviewArr[$this->sAPIResRev],
-                    $this->convertObjectToArray($reviewsPage->reviews)
+                $reviewCollection = array_merge(
+                    $reviewCollection,
+                    $reviewsPage->reviews
                 );
-                $reviewMain = $this->convertObjectToArray($reviewsPage);
             }
-        } while ($pages < $reviewMain[$this->sAPIResPageCnt]);
+        } while ($pages < $reviewsPage->pages_count);
 
-        $reviewArr = array_merge($reviewMain, $reviewArr);
+        $reviewsPage->reviews = $reviewCollection;
 
-        return $reviewArr;
+        return $reviewsPage;
     }
 
     /**
@@ -905,8 +906,8 @@ class Foxrate_Sdk_FoxrateRCI_Review extends Foxrate_Sdk_FoxrateRCI_ReviewAbstrac
         $postParams = json_encode(array('useful' => $useful));
         $resultRaw = $this->makeRequestBasicAuth(
             $url,
-            $this->sFoxrateAPIUsername,
-            $this->sFoxrateAPIPassword,
+            $this->config->getShopConfVar('foxrateUsername'),
+            $this->config->getShopConfVar('foxrateUsername'),
             array("Content-type: application/json"),
             $postParams
         );
@@ -930,12 +931,26 @@ class Foxrate_Sdk_FoxrateRCI_Review extends Foxrate_Sdk_FoxrateRCI_ReviewAbstrac
         $postParams = json_encode(array('abuse' => $abuse));
         $resultRaw = $this->makeRequestBasicAuth(
             $url,
-            $this->sFoxrateAPIUsername,
-            $this->sFoxrateAPIPassword,
+            $this->config->getShopConfVar('foxrateUsername'),
+            $this->config->getShopConfVar('foxrateUsername'),
             array("Content-type: application/json"),
             $postParams
         );
+
+        if ($this->isMakeRequestError($resultRaw)) {
+            throw new Foxrate_Sdk_ApiBundle_Exception_ModuleException('There was error during this action');
+        }
+
         return $resultRaw;
+    }
+
+    protected function isMakeRequestError($result)
+    {
+        if ($result->status == 'error') {
+            return true;
+        }
+
+        return false;
     }
 
     /**
@@ -957,62 +972,32 @@ class Foxrate_Sdk_FoxrateRCI_Review extends Foxrate_Sdk_FoxrateRCI_ReviewAbstrac
         //http://foxrate.de/product_rate/de/15170/shop_1/315a1773d274183955625d030225fcc9
 
 
-        $link = $this->getFoxrateUrl() . $this->sFoxrateProdProfLink . "/" . $lang . "/" . $this->sFoxrateAPI2sellerId . "/" . $this->getFoxrateShopId() . "/";
-        $link .= $prodId;
-        return $link;
-    }
+        $link = $this->getFoxrateUrl()
+            . $this->sFoxrateProdProfLink
+            . "/" . $lang
+            . "/" . $this->sFoxrateAPI2sellerId
+            . "/" . $this->getFoxrateShopId()
+            . "/" . $prodId;
 
-    /**
-     * Load product Ids
-     *
-     * @return mixed
-     */
-    public function loadProductIds()
-    {
-        return FoxrateReviews::getKernel()->get('shop.product')->getProductsIds();
+        return $link;
     }
 
     public function getTotalReviews($generalReview)
     {
         if (!isset($generalReview)) {
-            throw new Exception('General product review info not given!');
+            throw new Foxrate_Sdk_ApiBundle_Exception_ModuleException('General product review info not given!');
         }
         return $generalReview['count'];
     }
 
     public function getFoxrateApiUrl()
     {
-        return $this->foxrateApiUrl;
+        return $this->environment->getFoxrateApiUrl();
     }
 
     public function getFoxrateUrl()
     {
-        return $this->foxrateUrl;
-    }
-
-    /**
-     * Enables Dev mode, if it is dev enviroment
-     * @todo needs to refactored to correct location and unify
-     */
-    public function enableDevMode()
-    {
-        if ($this->isDevEnviroment()) {
-            $this->foxrateApiUrl = 'http://api.foxrate.vm';
-
-            $this->foxrateUrl = 'http://foxrate.vm/';
-        }
-    }
-
-    /**
-     * Check if it is Foxrate developer enviroment.
-     * @return bool
-     */
-    public function isDevEnviroment()
-    {
-        return isset($_SERVER['FOXRATE__IS_DEVELOPER_MODE']) && $_SERVER['FOXRATE__IS_DEVELOPER_MODE'] == true && strpos(
-            $_SERVER['SERVER_NAME'],
-            '.vm'
-        );
+        return $this->environment->getFoxrateUrl();
     }
 
     /**
@@ -1023,7 +1008,9 @@ class Foxrate_Sdk_FoxrateRCI_Review extends Foxrate_Sdk_FoxrateRCI_ReviewAbstrac
     {
 
         $isActive = $this->config->getConfigParam('foxratePR_OrderRichSnippet');
-        if ($isActive == 'off' || is_null($isActive)) {
+        $hasProblems = $this->config->isRichSnippetProblem();
+
+        if ($isActive == 'off' || is_null($isActive) || $hasProblems) {
             return false;
         } else {
             return true;
@@ -1036,6 +1023,57 @@ class Foxrate_Sdk_FoxrateRCI_Review extends Foxrate_Sdk_FoxrateRCI_ReviewAbstrac
             throw new InvalidArgumentException('Foxrate shop id is not set.');
         }
         return $this->sFoxrateAPIShopId;
+    }
+
+    public function showFoxrateCategoryRatings()
+    {
+        return $this->config->getConfigParam('foxrateShowRatingsInCategory') == 'on';
+    }
+
+    public function getCategoryErrorMap()
+    {
+
+        $isAllowedCatDisp = $this->config->getConfigParam('foxratePR_CatalogDisplay');
+        $isAllowedTooltip = $this->config->getConfigParam('foxratePR_CatalogTooltip');
+        $errors = array('Catalog_display' => 'true', 'Catalog_tooltip' => 'true');
+        if ($isAllowedCatDisp == 'off' || is_null($isAllowedCatDisp)) {
+            $errors['Catalog_display'] = 'false';
+        }
+
+        if ($isAllowedTooltip == 'off' || is_null($isAllowedTooltip)) {
+            $errors['Catalog_tooltip'] = 'false';
+        }
+
+        return $errors;
+    }
+
+    public function isSummaryDisbaled()
+    {
+        $isAllowed = $this->config->getConfigParam('foxratePR_Summary');
+
+        if ($this->isDisabled($isAllowed)) {
+            return $this->disabledSummaryError();
+        }
+
+        return false;
+    }
+
+    protected function sortReviewCounts($info)
+    {
+        if (is_array($info['counts'])) {
+            krsort($info['counts']);
+        }
+        return $info;
+
+    }
+
+    /**
+     * Some shops displays reviews on tab or other page, we must generate a specific link for them.
+     * @return mixed
+     */
+    public function getReviewsUrl()
+    {
+        return $this->config->getReviewsUrl();
     }
 
 }

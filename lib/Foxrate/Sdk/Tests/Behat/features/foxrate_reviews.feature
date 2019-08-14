@@ -3,21 +3,52 @@ Feature: Foxrate Review Page
   As a website user
   I need to see Foxrate reviews in page
 
-  @javascript @prestashop
-  Scenario: View Foxrate reviews tab
+  Background: Foxrate reviews are installed and product has reviews
+    Given I am on a product page
+    When I click "Reviews"
+    Then Product has one page of foxrate product reviews
+    And Product has one review with "4" rating
+
+  @javascript @prestashop @oxid
+  Scenario: View Foxrate user reviews
     Given I am on a product page
     When I click "Reviews"
     Then I should see foxrate product reviews
 
-  @javascript @prestashop
-  Scenario: View Foxrate reviews
+  @javascript @prestashop @oxid
+  Scenario: View Foxrate reviews tab
     Given I am on a product page
     When I click "Reviews"
-    Then I should not see foxrate product rating box
+    Then I should see foxrate product review tab content
 
-  @javascript @prestashop @this
+  @javascript @prestashop @oxid
+  Scenario: View Foxrate product rating box
+    Given I am on a product page
+    Then I should see foxrate product rating box
+
+  @javascript @prestashop @oxid
   Scenario: View Foxrate reviews summary
     Given I am on a product page
     When I click "Reviews"
     And Product has one review with "4" rating
     Then I should see foxrate review summary with "4" big stars
+
+  @javascript @oxid @prestashop @category
+  Scenario: View Foxrate review stars in grid view default category
+    Given I am on a default category page
+    Then I should see foxrate product rating stars
+
+  @javascript @oxid @category
+  Scenario: View Foxrate review stars in grid view default category
+    Given I select "grid" view
+    Then I should see foxrate product rating stars of default product
+
+  @javascript @oxid @category
+  Scenario: View Foxrate review stars in grid view default category
+    Given I select "infogrid" view
+    Then I should see foxrate product rating stars
+
+  @javascript @oxid @category
+  Scenario: View Foxrate review stars in grid view default category
+    Given I select "line" view
+    Then I should see foxrate product rating stars

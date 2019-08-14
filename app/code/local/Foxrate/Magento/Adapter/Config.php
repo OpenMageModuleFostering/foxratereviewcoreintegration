@@ -1,6 +1,6 @@
 <?php
 
-class Foxrate_Magento_Adapter_Config extends Mage_Core_Model_Config_Data
+class Foxrate_Magento_Adapter_Config extends Mage_Core_Model_Config_Data implements Foxrate_Sdk_FoxrateRCI_ConfigInterface
 {
 
     /**
@@ -199,4 +199,35 @@ class Foxrate_Magento_Adapter_Config extends Mage_Core_Model_Config_Data
         return $this->getCachedReviewsPath() . "/" . $this->sFoxrateCachedProductsTemp;
     }
 
+    public function getTranslationFilePath($lang) {
+        return _PS_MODULE_DIR_ . 'foxratereviews/assets/lang/' . $lang . "/foxratereviews.php";
+    }
+
+    public function isRichSnippetProblem()
+    {
+        $value = $this->getRichSnippetProblem();
+        return !empty($value);
+    }
+
+    public function saveRichSnippetProblem($message)
+    {
+        $this->saveShopConfVar('RichSnippetProblem', $message);
+    }
+
+    public function getRichSnippetProblem(){
+        return $this->getShopConfVar('RichSnippetProblem');
+    }
+
+    public function disableRichSnippets(){
+        $this->saveShopConfVar('foxratePR_OrderRichSnippet', 'off');
+    }
+
+    public function enableRichSnippets(){
+        $this->saveShopConfVar('foxratePR_OrderRichSnippet', 'on');
+    }
+
+    public function clearRichSnippetProblem()
+    {
+        $this->saveRichSnippetProblem('');
+    }
 }

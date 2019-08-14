@@ -2,13 +2,14 @@
 /**
  * Class Foxrate_Kernel
  */
-class Foxrate_Kernel extends Foxrate_Sdk_Api_Kernel
+class Foxrate_Kernel extends Foxrate_Sdk_FrameworkBundle_Kernel
 {
 
     public function registerBundles()
     {
         $bundles = array(
-            new Foxrate_Sdk_Api_Bundle(),
+            new Foxrate_Sdk_FrameworkBundle_Bundle(),
+            new Foxrate_Sdk_ApiBundle_Bundle(),
             new Foxrate_Sdk_FoxrateRCI_Bundle(),
             new Foxrate_Magento_Bundle()
         );
@@ -29,19 +30,21 @@ class Foxrate_Kernel extends Foxrate_Sdk_Api_Kernel
     public static function getInstance()
     {
 
-
         if (self::$instance instanceof self) {
             return self::$instance;
         }
         $env = 'prod';
 
-        if (isset($_SERVER['FOXRATE__IS_DEVELOPER_MODE']) && $_SERVER['FOXRATE__IS_DEVELOPER_MODE'] == true) {
-            define('DEV', true);
+        if (!defined('DEV')) {
+            if (isset($_SERVER['FOXRATE__IS_DEVELOPER_MODE']) && $_SERVER['FOXRATE__IS_DEVELOPER_MODE'] == true) {
+                define('DEV', true);
+            }
         }
 
         if (defined('DEV') && DEV) {
             $env = 'dev';
         }
+
         $debug = false;
         if (defined('DEBUG') && DEBUG) {
             $debug = true;

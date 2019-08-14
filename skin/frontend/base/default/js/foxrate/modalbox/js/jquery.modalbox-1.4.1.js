@@ -4,8 +4,9 @@
 * is released under the MIT License <http://www.opensource.org/licenses/mit-license.php> 
 */
 (function($){
-	
-	
+
+    var jQuery = j183.getjQuery();
+    
 	// Default options
 	var defaults = {
 		
@@ -1672,4 +1673,4 @@
 	});
 
 	
-})(jQuery);
+})(j183.getjQuery());

@@ -1,10 +1,9 @@
 <?php
 
-class Foxrate_Sdk_FoxrateRCI_Bundle extends Foxrate_Sdk_Api_Bundle
+class Foxrate_Sdk_FoxrateRCI_Bundle extends Foxrate_Sdk_FrameworkBundle_Bundle
 {
     public function boot()
     {
-
         $this->container->set('rci.review', array($this, 'getFoxrate_Sdk_FoxrateRCI_Review'));
         $this->container->set('rci.review_helper', array($this, 'getFoxrate_Sdk_FoxrateRCI_ReviewHelper'));
         $this->container->set('rci.rating_helper', array($this, 'getFoxrate_Sdk_FoxrateRCI_RatingHelper'));
@@ -13,6 +12,9 @@ class Foxrate_Sdk_FoxrateRCI_Bundle extends Foxrate_Sdk_Api_Bundle
         $this->container->set('rci.data_manager', array($this, 'getFoxrate_Sdk_FoxrateRCI_DataManager'));
         $this->container->set('rci.process_reviews', array($this, 'getFoxrate_Sdk_FoxrateRCI_ProcessReviews'));
         $this->container->set('rci.filter_helper', array($this, 'getFoxrate_Sdk_FoxrateRCI_FilterHelper'));
+        $this->container->set('rci.routes', array($this, 'getFoxrate_Sdk_FoxrateRCI_ShopRoutes'));
+        $this->container->set('rci.rich_snippets', array($this, 'getFoxrate_Sdk_FoxrateRCI_RichSnippets'));
+
     }
 
     public function getFoxrate_Sdk_FoxrateRCI_Review()
@@ -20,7 +22,10 @@ class Foxrate_Sdk_FoxrateRCI_Bundle extends Foxrate_Sdk_Api_Bundle
         return new Foxrate_Sdk_FoxrateRCI_Review(
             $this->container->get("shop.configuration"),
             $this->container->get("api.authenticator"),
-            $this->container->get("rci.data_manager")
+            $this->container->get("rci.data_manager"),
+            $this->container->get("shop.product"),
+            $this->container->get("api.environment")
+
         );
     }
 
@@ -35,6 +40,7 @@ class Foxrate_Sdk_FoxrateRCI_Bundle extends Foxrate_Sdk_Api_Bundle
     {
         return new Foxrate_Sdk_FoxrateRCI_ReviewHelper(
             $this->container->get("rci.review"),
+            $this->container->get("rci.review_totals"),
             $this->container->get("shop.configuration")
         );
     }
@@ -61,7 +67,8 @@ class Foxrate_Sdk_FoxrateRCI_Bundle extends Foxrate_Sdk_Api_Bundle
     public function getFoxrate_Sdk_FoxrateRCI_DataManager()
     {
         return new Foxrate_Sdk_FoxrateRCI_DataManager(
-            $this->container->get("shop.configuration")
+            $this->container->get("shop.configuration"),
+            $this->container->get("api.factory.product_reviews")
         );
     }
 
@@ -77,4 +84,20 @@ class Foxrate_Sdk_FoxrateRCI_Bundle extends Foxrate_Sdk_Api_Bundle
             $this->container->get("rci.review_totals")
         );
     }
+
+    public function getFoxrate_Sdk_FoxrateRCI_ShopRoutes()
+    {
+        return new Foxrate_Sdk_FoxrateRCI_ShopRoutes();
+    }
+
+    public function getFoxrate_Sdk_FoxrateRCI_RichSnippets()
+    {
+        $config =  $this->container->get("shop.configuration");
+
+        return new Foxrate_Sdk_FoxrateRCI_RichSnippets(
+            $config
+        );
+    }
+
+
 }

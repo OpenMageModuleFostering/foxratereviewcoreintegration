@@ -1,16 +1,95 @@
+#
+#   Execution
+#
+# run on oxid with:
+# php bin/behat -c modules/foxrate_reviews/libraries/Foxrate/Sdk/Tests/Behat/behat.yml --profile=oxid
+#
+# or siply create symbolic link
+# ln -s modules/foxrate_reviews/libraries/Foxrate/Sdk/Tests/Behat/features
+# ln -s modules/foxrate_reviews/libraries/Foxrate/Sdk/Tests/Behat/behat.yml
+#
+# and RUN:
+# php bin/behat --profile=oxid
+
 default:
   paths:
     features: features
     bootstrap: %behat.paths.features%/bootstrap
-  context:
-    class:  'FeatureContext'
-    parameters:
-       base_url:   http://prestashop.foxrate.vm/
-       product_uri:   index.php?id_product=1&controller=product
+
+#  formatter:
+#    name:       progress
 
   extensions:
     Behat\MinkExtension\Extension:
-      base_url:  'http://prestashop.foxrate.vm/'
       goutte:    ~
       selenium2:
-        wd_host: "http://192.168.128.1:4444/wd/hub"
+        wd_host: "http://selenium.vm:4444/wd/hub"
+
+prestashop:
+  paths:
+    features: features
+    bootstrap: %behat.paths.features%/bootstrap
+  context:
+    class: features\PrestashopContext
+    parameters:
+       base_url:   http://prestashop1482.foxrate.vm/
+       product_uri: product.php?id_product=1
+       bridge_uri: modules/foxratereviews/foxrate_public.php?
+       default_category_uri: category.php?id_category=2
+       connection_test: connection_test=1
+       check: check=d6999805df4bd86d6d3e017ba1758111&days=1
+       review_tab: idTab5Foxrate
+       product_id: 1
+       cache_file_dir: cache/FoxrateCache/ProductReviews/
+  filters:
+      tags: "@bamboo"
+
+prestashop15:
+  paths:
+    features: features
+    bootstrap: %behat.paths.features%/bootstrap
+  context:
+    class: features\PrestashopContext
+    parameters:
+       base_url:   http://prestashop-php52-15.vm/
+       product_uri: index.php?id_product=1&controller=product&id_lang=1
+       bridge_uri: index.php?fc=module&module=foxrate&controller=export&
+       default_category_uri: category.php?id_category=2
+       connection_test: connection_test=1
+       check: check=d6999805df4bd86d6d3e017ba1758111&days=1
+       review_tab: idTab5Foxrate
+       product_id: 1
+       cache_file_dir: cache/FoxrateCache/ProductReviews/
+       shop_server_ssh_url: prestashop-php52-15.vm
+       shop_server_ssh_port: 10022
+       shop_server_ssh_user: root
+       shop_server_location: /var/www
+       isLocalShop: false
+  filters:
+      tags: "@bamboo"
+
+oxid:
+  paths:
+    features: features
+    bootstrap: %behat.paths.features%/bootstrap
+
+  context:
+    class: features\OxidContext
+    parameters:
+       base_url:   http://oxid-php52-479.vm/
+       product_uri: en/Kiteboarding/Kites/Kite-CORE-GTS.html
+       bridge_uri: index.php?cl=foxrate_orders&
+       default_category_uri: en/Kiteboarding/Kites/
+       connection_test: connection_test=1
+       check: check=d6999805df4bd86d6d3e017ba1758111&days=1
+       review_tab: foxrateProductReviews
+       product_id: b56369b1fc9d7b97f9c5fc343b349ece
+       cache_file_dir: tmp/FoxrateCache/ProductReviews/
+       shop_server_ssh_url: oxid-php52-479.vm
+       shop_server_ssh_port: 10022
+       shop_server_ssh_user: root
+       shop_server_location: /var/www
+       isLocalShop: false
+
+  filters:
+      tags: "@oxid"

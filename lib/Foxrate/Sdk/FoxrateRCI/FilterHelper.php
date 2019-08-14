@@ -1,6 +1,6 @@
 <?php
 
-class Foxrate_Sdk_FoxrateRci_FilterHelper extends Foxrate_Sdk_FoxrateRCI_ReviewAbstract
+class Foxrate_Sdk_FoxrateRCI_FilterHelper extends Foxrate_Sdk_FoxrateRCI_Settings
 {
 
     protected $reviewModel;
@@ -9,7 +9,7 @@ class Foxrate_Sdk_FoxrateRci_FilterHelper extends Foxrate_Sdk_FoxrateRCI_ReviewA
     protected $request;
     protected $processedReviews;
 
-    function __construct($config, $dataManager, $reviewModel, $request)
+    function __construct($config, $dataManager, $reviewModel, Foxrate_Sdk_FoxrateRCI_RequestInterface $request)
     {
         $this->config = $config;
         $this->dataManager = $dataManager;
@@ -27,21 +27,14 @@ class Foxrate_Sdk_FoxrateRci_FilterHelper extends Foxrate_Sdk_FoxrateRCI_ReviewA
     public function processProductReviews()
     {
         $filter = array();
-        $page = $this->request->post("page");
-        $productId = $this->request->post("product");
-        $filter['star_filter'] = $this->request->post("star_filter");
-        $filter['sort'] = $this->request->post("sort");
-        $filter['search'] = $this->request->post("frsearch");
+        $page = $this->request->takeParameter("page");
+        $productId = $this->request->takeParameter("product");
+        $filter['star_filter'] = $this->request->takeParameter("star_filter");
+        $filter['sort'] = $this->request->takeParameter("sort");
+        $filter['search'] = $this->request->takeParameter("frsearch");
 
-        try
-        {
-            $objData = $this->getFilteredProductRevs($productId, $page, $filter);
-            $pageRevInfo =  $this->reviewModel->convertObjectToArray($objData);
-        }
-        catch (Exception $e)
-        {
-            $pageRevInfo = array( "error" => $e->getMessage());
-        }
+        $pageRevInfo = $this->getFilteredProductRevs($productId, $page, $filter);
+
         $this->processedReviews = $pageRevInfo;
         return $this->processedReviews;
     }
@@ -71,17 +64,19 @@ class Foxrate_Sdk_FoxrateRci_FilterHelper extends Foxrate_Sdk_FoxrateRCI_ReviewA
             $revsPerPage = $this->sFoxrateSettings['foxratePR_RevsPerPage'];
 
             foreach($innerFilter as $key => $condition){
-                $allRevs[$this->sAPIResRev] = $this->applyFilterForRevs($allRevs[$this->sAPIResRev], $key, $condition);
-                $allRevs[$this->sAPIResRevCount] = count($allRevs[$this->sAPIResRev]);
-                $allRevs[$this->sAPIResPageCnt] = ceil($allRevs[$this->sAPIResRevCount]/$revsPerPage);
+                $allRevs->reviews = $this->applyFilterForRevs($allRevs->reviews, $key, $condition);
+                $allRevs->reviews_count = count($allRevs->reviews);
+                $allRevs->pages_count = ceil($allRevs->reviews_count/$revsPerPage);
             }
-            if($allRevs[$this->sAPIResPageCnt] > 1){
+
+            if($allRevs->pages_count > 1){
                 $allRevs = $this->applyFilterForRevs($allRevs, 'page', $page);
             }else{
-                $allRevs[$this->sAPIResPageCnt] = 1;
-                $allRevs[$this->sAPIResCurPage] = 1;
+                $allRevs->current_page = 1;
+                $allRevs->pages_count = 1;
             }
         }else{
+
             $allRevs = $this->dataManager->loadCachedProductReviews($prodId, $page);
         }
         return $allRevs;
@@ -95,12 +90,13 @@ class Foxrate_Sdk_FoxrateRci_FilterHelper extends Foxrate_Sdk_FoxrateRCI_ReviewA
 
         $foxrateFiltering = new Foxrate_Sdk_FoxrateRCI_Filter();
         $finalRevs ="";
+
         switch($filterRule)
         {
             case "star_filter":
                 $finalRevs = $foxrateFiltering->filter($filterVal, $revs, 'filterRevs_Ratings');
-                if(empty($finalRevs)){
-                    throw new Exception('No products found with selected star count');
+                if (empty($finalRevs)) {
+                    throw new Foxrate_Sdk_ApiBundle_Exception_ReviewsNotFoundException('No products found with selected star count');
                 }
                 break;
             case "sort":
@@ -110,18 +106,18 @@ class Foxrate_Sdk_FoxrateRci_FilterHelper extends Foxrate_Sdk_FoxrateRCI_ReviewA
                 break;
             case "search";
                 $finalRevs = $foxrateFiltering->filter($filterVal, $revs, 'filterRevs_Search');
-                if(empty($finalRevs)){
-                    throw new Exception('Could not find any product with given keyword');
+                if (empty($finalRevs)) {
+                    throw new Foxrate_Sdk_ApiBundle_Exception_ReviewsNotFoundException('Could not find any product with given keyword');
                 }
                 break;
             case "page":
                 $currPageIndex = $filterVal;
                 $filterVal--;
                 $revsPerPage = $this->sFoxrateSettings['foxratePR_RevsPerPage'];
-                $finalRevs[$this->sAPIResRev] = array_slice($revs[$this->sAPIResRev], $filterVal*$revsPerPage, $revsPerPage);
-                $finalRevs[$this->sAPIResRevCount] = $revs[$this->sAPIResRevCount];
-                $finalRevs[$this->sAPIResPageCnt] = $revs[$this->sAPIResPageCnt];
-                $finalRevs[$this->sAPIResCurPage] = $currPageIndex;
+                $finalRevs->reviews = array_slice($revs->reviews, $filterVal*$revsPerPage, $revsPerPage);
+                $finalRevs->reviews_count = $revs->reviews_count;
+                $finalRevs->pages_count = $revs->pages_count;
+                $finalRevs->current_page = $currPageIndex;
                 break;
             default:
                 $finalRevs = $revs;
@@ -132,13 +128,13 @@ class Foxrate_Sdk_FoxrateRci_FilterHelper extends Foxrate_Sdk_FoxrateRCI_ReviewA
 
     public function isError()
     {
-        return isset($this->processedReviews['error']);
+        return isset($this->processedReviews->error);
     }
 
     public function getReviewList()
     {
         $data = $this->getProcessedReviews();
-        return $data['reviews'];
+        return $data->reviews;
     }
 
     public function isNotEmptyReviewList()
@@ -178,6 +174,10 @@ class Foxrate_Sdk_FoxrateRci_FilterHelper extends Foxrate_Sdk_FoxrateRCI_ReviewA
     public function calcReviewDate($date)
     {
         return $this->getReviewModel()->calcReviewDate($date);
+    }
+
+    public function getProductReviewList() {
+        return $this->processedReviews->reviews;
     }
 
 }

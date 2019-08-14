@@ -13,7 +13,7 @@ class Foxrate_Sdk_FoxrateRCI_Reviewtotals
 
     protected $productId;
 
-    public function __construct(Foxrate_Sdk_FoxrateRCI_ReviewInterface $review)
+    public function __construct(Foxrate_Sdk_FoxrateRCI_Review $review)
     {
         $this->reviewModel = $review;
     }
@@ -25,7 +25,9 @@ class Foxrate_Sdk_FoxrateRCI_Reviewtotals
      */
     public function calcPercent($current, $total)
     {
-        return ($current*100)/$total;
+//        var_dump($current);
+//        var_dump($total);
+        return $current * 100 / $total;
     }
 
     /**
@@ -72,25 +74,12 @@ class Foxrate_Sdk_FoxrateRCI_Reviewtotals
             );
         }
 
-        return  $this->reviewTotalsData['count'];
+        return  isset($this->reviewTotalsData['count']) ? $this->reviewTotalsData['count'] : 0 ;
     }
 
     public function getEntityId()
     {
         return Mage::app()->getRequest()->getParam('id');
-    }
-
-    /**
-     * Overide core getRatingSummary method
-     *
-     * @todo hard coded
-     * @return bool
-     *
-     */
-    public function getRatingSummary()
-    {
-        $productPage = $this->getProductPage();
-        return $foxrateReviewHelper->formatCalcPercent($productPage['average'], 5);
     }
 
     /**
@@ -108,7 +97,7 @@ class Foxrate_Sdk_FoxrateRCI_Reviewtotals
     {
         if (null == $this->productId)
         {
-            throw new Exception('Product Id is not set!');
+            throw new Foxrate_Sdk_ApiBundle_Exception_ModuleException('Product Id is not set!');
         }
 
         return $this->productId;

@@ -52,7 +52,7 @@ class Foxrate_Sdk_Acne_Container implements ArrayAccess
      */
     public function offsetGet($key)
     {
-        if (!array_key_exists($key, $this->values)) {
+        if (!isset($this->values[$key])) {
             throw new InvalidArgumentException(sprintf('Identifier "%s" is not defined.', $key));
         }
         $value = $this->values[$key];

@@ -1,16 +1,38 @@
 <?php
 
 
-class Foxrate_Sdk_FoxrateRci_DataManager
+class Foxrate_Sdk_FoxrateRCI_DataManager
 {
 
 
     protected $config;
 
-    function __construct($config)
-    {
-        $this->config = $config;
+    protected $productReviewsFactory;
 
+    /**
+     * Lock expire time. (minutes). If this time period has passed since lock creation, it is assumed something broke
+     * and lock is treated as expired.
+     * @var string
+     */
+    protected $sReviewsExpireLockCacheDemand = '30';
+
+    public function __construct(
+        Foxrate_Sdk_FoxrateRCI_ConfigInterface $config,
+        Foxrate_Sdk_ApiBundle_Service_ProductReviewsFactory $productReviewFactory
+    ) {
+        $this->config = $config;
+        $this->productReviewsFactory = $productReviewFactory;
+    }
+
+    /**
+     * Creates product lock for reviews, so no other import instances would be launched, for the same product
+     * @param $prodId
+     */
+    public function lockOnDemandCacheProduct($prodId)
+    {
+        $data = json_encode(array('lock_time' => strtotime('now')));
+        $name = $prodId . ".lock";
+        $this->storeToMainCache($name, $data, 'json');
     }
 
     /**
@@ -20,15 +42,14 @@ class Foxrate_Sdk_FoxrateRci_DataManager
      * 3. Import lock time ended.
      *
      * @param $prodId
-     * @throws Exception
+     * @throws Foxrate_Sdk_ApiBundle_Exception_ModuleException
      */
-    public function unlockOnDemandCache_Product($prodId)
+    public function unlockOnDemandCacheProduct($prodId)
     {
         $pathName = $this->config->getCachedReviewsPath()."/".$prodId.".lock.json";
         $result = unlink($pathName);
-        if(!$result)
-        {
-            throw new Exception("Lock removal failed for path: ".$pathName);
+        if (!$result) {
+            throw new Foxrate_Sdk_ApiBundle_Exception_ModuleException("Lock removal failed for path: ".$pathName);
         }
     }
 
@@ -37,18 +58,17 @@ class Foxrate_Sdk_FoxrateRci_DataManager
      *
      * @param $path
      * @return string
-     * @throws Exception
+     * @throws Foxrate_Sdk_ApiBundle_Exception_ModuleException
      */
     protected function ReadFileContents($path)
     {
         if (is_file($path)) {
             $content = file_get_contents($path);
-            if(!$content)
-            {
-                throw new Exception("Error: Failed to load data from file: " . $path);
+            if (!$content) {
+                throw new Foxrate_Sdk_ApiBundle_Exception_ModuleException("Error: Failed to load data from file: " . $path);
             }
         } else {
-            throw new Exception("Error: File not found: " . $path);
+            throw new Foxrate_Sdk_ApiBundle_Exception_ModuleException("Error: File not found: " . $path);
         }
         return $content;
     }
@@ -58,50 +78,45 @@ class Foxrate_Sdk_FoxrateRci_DataManager
      *
      * @param $prodId
      * @return bool|mixed
-     * @throws Exception
+     * @throws Foxrate_Sdk_ApiBundle_Exception_ModuleException
      */
     public function loadProductsRevsGeneral_Cache($prodId)
     {
-        $revGen = false;
         $path = $this->prodRevFilenameBuilder($prodId, "general");
-        try
-        {
-            $rawContent = $this->ReadFileContents($path);
-            $revGen = json_decode($rawContent);
-        }
-        catch(Exception $e)
-        {
-            $this->config->writeToLog($e->getMessage() ." product: ".$prodId);
-            throw new Exception("Reviews for this product are not found");
-        }
-        return $revGen;
-    }
+        try {
+            $content = json_decode($this->ReadFileContents($path));
 
+        } catch (Foxrate_Sdk_ApiBundle_Exception_ModuleException $e) {
+            $this->config->writeToLog($e->getMessage() ." product: ".$prodId);
+            throw new Foxrate_Sdk_ApiBundle_Exception_ReviewsNotFoundException("Reviews for this product are not found");
+        }
+        return $content;
+    }
 
 
     /**
      * Loads single review page from cache
      * @param $prodId
      * @param int $page
-     * @return bool
+     *
+     * @return mixed
+     * @throws Foxrate_Sdk_ApiBundle_Exception_ReviewsNotFoundException
      */
     public function loadCachedProductReviews($prodId, $page = 1)
     {
-        $revPage = false;
         $path = $this->prodRevFilenameBuilder($prodId, "page", $page, "json");
-
-        try
-        {
-            $rawContent = $this->ReadFileContents($path);
-            $arrContent = json_decode($rawContent);
-            $revPage = $arrContent;
-        }
-        catch(Exception $e)
-        {
+        $reviewCollection = array();
+        try {
+            $arrContent = json_decode($this->ReadFileContents($path));
+            foreach ($arrContent->reviews as $review) {
+                $reviewCollection[] = $this->productReviewsFactory->fromStdObject($review);
+            }
+            $arrContent->reviews = $reviewCollection;
+        } catch (Foxrate_Sdk_ApiBundle_Exception_ModuleException $e) {
             $this->config->writeToLog($e->getMessage() ." product: ".$prodId);
-            throw new Exception("Product review info not found.");
+            throw new Foxrate_Sdk_ApiBundle_Exception_ReviewsNotFoundException("Product review info not found.");
         }
-        return $revPage;
+        return $arrContent;
     }
 
     /**
@@ -138,21 +153,37 @@ class Foxrate_Sdk_FoxrateRci_DataManager
      * @param string $format
      * @return bool
      */
-    protected function isCacheLocked_CacheDemand($productId, $format = 'json')
+    public function isCacheLocked_CacheDemand($productId, $format = 'json')
     {
         $lockPath = $this->config->getCachedReviewsPath()."/".$productId.".lock.".$format;
-        if(!file_exists($lockPath)){
+        if (!file_exists($lockPath)) {
             return false;
         }
         $lockTimeRaw = file_get_contents($lockPath);
         $lockTimeArr = json_decode($lockTimeRaw);
         $lockTime = $lockTimeArr->lock_time;
         $currentTime = strtotime("- {$this->sReviewsExpireLockCacheDemand} minutes");
-        if($lockTime <= $currentTime){
-            $this->unlockOnDemandCache_Product($productId);
+        if ($lockTime <= $currentTime) {
+            $this->unlockOnDemandCacheProduct($productId);
             return false;
-        }else{
+        } else {
             return true;
+        }
+    }
+
+    /**
+     * Stores given data to main cache
+     * @param $name
+     * @param $data
+     * @param string $format
+     * @throws Foxrate_Sdk_ApiBundle_Exception_ModuleException
+     */
+    protected function storeToMainCache($name, $data, $format = "json")
+    {
+        $pathName = $this->config->getCachedReviewsPath() . "/" . $name . "." . $format;
+        $saveResponse = file_put_contents($pathName, $data);
+        if (!$saveResponse) {
+            $this->config->writeToLog("Warning: Couldn't save data to main cache directory: " . $pathName);
         }
     }
 

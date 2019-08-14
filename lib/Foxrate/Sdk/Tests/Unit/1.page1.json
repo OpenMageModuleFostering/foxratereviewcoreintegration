@@ -1,0 +1,80 @@
+{"current_page": 1, "pages_count": 1, "reviews_count": 3, "reviews": [
+    {
+        "id": 1228,
+        "date": "2012-06-25T10:22:01+0200",
+        "name": "Laure",
+        "stars": 3,
+        "comment_pros": "Die St\u00fchle sind etwas schwerg\u00e4ngig und nicht f\u00fcr Hochlehnauflagen geeignet.",
+        "comment_cons": "comment ot laura3333",
+        "comment_conclusion": "one of the best",
+        "comment": "coment from laura1111",
+        "anonymous": false,
+        "rating_question_first": 2,
+        "rating_question_second": 3,
+        "rating_question_third": 4,
+        "source": "shop",
+        "this_is_useful": {
+            "yes": 0,
+            "no": 1,
+            "total": 1
+        },
+        "reviewer_verified": true,
+        "recommends_for_others": "no_answer",
+        "images": {
+            "12px": "https:\/\/foxrate.de\/images\/widgets\/api\/12\/3_00.png",
+            "14px": "https:\/\/foxrate.de\/images\/widgets\/api\/14\/3_00.png"
+        }
+    },
+    {
+        "id": 1224,
+        "date": "2012-04-10T10:22:01+0200",
+        "name": "Test User",
+        "stars": 2,
+        "comment_pros": "test2 comment2",
+        "comment_cons": "test 3comment3",
+        "comment_conclusion": "asdasd alles bestens",
+        "comment": "test 1 comment",
+        "anonymous": false,
+        "rating_question_first": 2,
+        "rating_question_second": 3,
+        "rating_question_third": 4,
+        "source": "shop",
+        "this_is_useful": {
+            "yes": 23,
+            "no": 12,
+            "total": 35
+        },
+        "reviewer_verified": true,
+        "recommends_for_others": "no_answer",
+        "images": {
+            "12px": "https:\/\/foxrate.de\/images\/widgets\/api\/12\/2_00.png",
+            "14px": "https:\/\/foxrate.de\/images\/widgets\/api\/14\/2_00.png"
+        }
+    },
+    {
+        "id": 1219,
+        "date": "2012-04-15T10:22:06+0200",
+        "name": "bingo",
+        "stars": 5,
+        "comment_pros": "b comment2",
+        "comment_cons": "b comment3",
+        "comment_conclusion": "gut gut",
+        "comment": "bingo bingocomm",
+        "anonymous": false,
+        "rating_question_first": 2,
+        "rating_question_second": 3,
+        "rating_question_third": 4,
+        "source": "shop",
+        "this_is_useful": {
+            "yes": 0,
+            "no": 0,
+            "total": 0
+        },
+        "reviewer_verified": true,
+        "recommends_for_others": "no_answer",
+        "images": {
+            "12px": "https:\/\/foxrate.de\/images\/widgets\/api\/12\/5_00.png",
+            "14px": "https:\/\/foxrate.de\/images\/widgets\/api\/14\/5_00.png"
+        }
+    }
+]}
