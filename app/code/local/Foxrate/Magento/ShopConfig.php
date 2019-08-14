@@ -6,12 +6,12 @@ class Foxrate_Magento_ShopConfig implements Foxrate_Sdk_Api_Components_SavedCred
 
     public function savedUsername()
     {
-        return Mage::getStoreConfig('ordersexport/foxrateOrdersExport/fox_api_username');
+        return Mage::getStoreConfig('reviewcoreintegration/foxrateReviewCoreIntegration/fox_api_username');
     }
 
     public function  savedPassword()
     {
-        return Mage::getStoreConfig('ordersexport/foxrateOrdersExport/fox_api_password');
+        return Mage::getStoreConfig('reviewcoreintegration/foxrateReviewCoreIntegration/fox_api_password');
     }
 
 } 

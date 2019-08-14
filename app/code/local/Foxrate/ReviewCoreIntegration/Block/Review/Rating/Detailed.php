@@ -50,7 +50,7 @@ class Foxrate_ReviewCoreIntegration_Block_Review_Rating_Detailed extends Mage_Co
      */
     public function getWriteReviewLink($prodId)
     {
-        return Mage::getModel('reviewcoreintegration/review')->getWriteReviewLink($prodId);
+        return $this->getKernel()->get('rci.review')->getWriteReviewLink($prodId);
     }
 
     /**
@@ -73,14 +73,6 @@ class Foxrate_ReviewCoreIntegration_Block_Review_Rating_Detailed extends Mage_Co
 
     public function getKernel()
     {
-        if (self::$kernel !== null)
-        {
-            return self::$kernel;
-        }
-
-        $kernel = new Foxrate_Kernel('dev', false);
-        $kernel->boot();
-
-        return self::$kernel = $kernel;
+        return Mage::getModel('reviewcoreintegration/kernelloader')->getKernel();
     }
 }

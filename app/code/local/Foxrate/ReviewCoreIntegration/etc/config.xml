@@ -1,7 +1,7 @@
 <config>
     <modules>
         <Foxrate_ReviewCoreIntegration>
-            <version>3.3.1</version>
+            <version>3.3.2</version>
         </Foxrate_ReviewCoreIntegration>
     </modules>
 
@@ -33,7 +33,6 @@
         </routers>
     </admin>
 
-
     <frontend>
         <layout>
             <updates>
@@ -50,6 +49,13 @@
                     <frontName>foxratereviews</frontName>
                 </args>
             </reviewcoreintegration>
+            <reviewcoreintegration_export>
+                <use>standard</use>
+                <args>
+                    <module>Foxrate_ReviewCoreIntegration</module>
+                    <frontName>export</frontName>
+                </args>
+            </reviewcoreintegration_export>
         </routers>
         <translate>
             <modules>
@@ -83,7 +89,7 @@
                             <children>
                                 <config>
                                     <children>
-                                        <reviewcoreintegration>
+                                        <reviewcoreintegration translate="title" module="reviewcoreintegration">
                                             <title>Foxrate Review Core Integration</title>
                                         </reviewcoreintegration>
                                     </children>
@@ -122,6 +128,11 @@
                     <product_list>Foxrate_ReviewCoreIntegration_Block_Product_List</product_list>
                 </rewrite>
             </catalog>
+            <page>
+                <rewrite>
+                    <html>Foxrate_ReviewCoreIntegration_Page_Block_Html</html>
+                </rewrite>
+            </page>
         </blocks>
 
         <models>
@@ -147,7 +158,7 @@
     </global>
 
     <default>
-        <ordersexport>
+        <reviewcoreintegration>
             <foxrateReviewCoreIntegration>
                 <fox_api_username>-</fox_api_username>
                 <fox_api_password>-</fox_api_password>
@@ -165,9 +176,9 @@
                 <page>1</page>
                 <last_product_review_import>0</last_product_review_import>
             </foxrateReviewCoreIntegrationConf>
-        </ordersexport>
-    </default>
+        </reviewcoreintegration>
 
+    </default>
     <crontab>
         <jobs>
             <reviewcoreintegration_import>

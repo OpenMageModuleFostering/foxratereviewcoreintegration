@@ -4,6 +4,15 @@
 class Foxrate_Magento_Credentials implements Foxrate_Sdk_Api_Components_ShopCredentialsInterface
 {
 
+    public $authenticator;
+
+    public $config;
+
+    function __construct($config)
+    {
+        $this->config = $config;
+    }
+
     /**
      *
      */
@@ -38,7 +47,7 @@ class Foxrate_Magento_Credentials implements Foxrate_Sdk_Api_Components_ShopCred
      */
     public function saveShopId($shopId)
     {
-        Mage::getModel('reviewcoreintegration/config')->saveShopConfVar('string', 'foxrateShopId', 'shop_' . $shopId);
+        $this->config->saveShopConfVar('foxrateShopId', 'shop_' . $shopId);
     }
 
 

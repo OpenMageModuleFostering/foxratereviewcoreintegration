@@ -11,7 +11,7 @@ class Foxrate_Magento_ShopEnvironment
 
     const BRIDGE_URI  = 'foxrate_api';
 
-    private $pluginVersion = '4.0.0';
+    private $pluginVersion = '3.3.2';
 
     /**
      * Returns the particular shop system version.
@@ -54,7 +54,7 @@ class Foxrate_Magento_ShopEnvironment
      */
     public function bridgeUrl()
     {
-        return Mage::getUrl('ordersexport');
+        return Mage::getUrl('reviewcoreintegration_export/index/export');
     }
 
     public function getShopLanguage()

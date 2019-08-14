@@ -12,7 +12,7 @@ class Foxrate_ReviewCoreIntegration_Model_Observer
         ini_set('memory_limit','1024M');
         set_time_limit(0);
 
-        $foxProdRevs= Mage::getModel('reviewcoreintegration/review');
+        $foxProdRevs= $this->getKernel()->get('rci.review');
         $status = $foxProdRevs->importProductReviews();
         echo $status."\n";
     }
@@ -21,9 +21,7 @@ class Foxrate_ReviewCoreIntegration_Model_Observer
     {
         if ($event->getEvent()->getBlock()->getNameInLayout() == 'content') {
 
-            $kernel = new Foxrate_Kernel('dev', false);
-            $kernel->boot();
-            if ($kernel->get('rci.review')->richSnippetIsActive() )
+            if ($this->getKernel()->get('rci.review')->richSnippetIsActive() )
             {
                 $normalOutput = $event->getTransport()->getHtml();
 
@@ -33,5 +31,10 @@ class Foxrate_ReviewCoreIntegration_Model_Observer
                 $event->getTransport()->setHtml( $normalOutput );
             }
         }
+    }
+
+    public function getKernel()
+    {
+        return Mage::getModel('reviewcoreintegration/kernelloader')->getKernel();
     }
 }

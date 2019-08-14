@@ -33,8 +33,7 @@ class Foxrate_Magento_Bundle extends Foxrate_Sdk_Api_Bundle
     public function getFoxrate_Magento_Credentials()
     {
         return new Foxrate_Magento_Credentials(
-            $this->container->get('api.authenticator'),
-            $this->container->get('shop.config')
+            $this->container->get('shop.configuration')
         );
     }
 
@@ -61,6 +60,11 @@ class Foxrate_Magento_Bundle extends Foxrate_Sdk_Api_Bundle
     public function getFoxrate_Magento_Translate()
     {
         return new Foxrate_Magento_Translate();
+    }
+
+    public function getFoxrate_Magento_Product()
+    {
+        return new Foxrate_Magento_Product();
     }
 
     public function getFoxrate_Magento_Assets()

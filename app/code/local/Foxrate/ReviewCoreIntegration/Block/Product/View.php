@@ -26,11 +26,8 @@ class Foxrate_ReviewCoreIntegration_Block_Product_View extends Mage_Review_Block
     {
         $productid = $this->getFoxrateProductId();
 
-        $kernel = new Foxrate_Kernel('dev', false);
-        $kernel->boot();
-
-        $this->assign('foxrateReviewGeneralData', $kernel->get('rci.review_totals')->getReviewTotalData($productid));
-        $this->assign('foxrateProductReviewList', $kernel->get('rci.process_reviews')->getProductReviewList($productid) );
+        $this->assign('foxrateReviewGeneralData', $this->getKernel()->get('rci.review_totals')->getReviewTotalData($productid));
+        $this->assign('foxrateProductReviewList', $this->getKernel()->get('rci.process_reviews')->getProductReviewList($productid) );
         return parent::_toHtml();
     }
 
@@ -125,10 +122,7 @@ class Foxrate_ReviewCoreIntegration_Block_Product_View extends Mage_Review_Block
         }
     }
 
-    public function getConfig()
-    {
-        return $this->lazyLoadModel('reviewcoreintegration/config');
-    }
+
 
     /**
      * Get module url
@@ -168,19 +162,6 @@ class Foxrate_ReviewCoreIntegration_Block_Product_View extends Mage_Review_Block
         return $this->lazyLoadingModel[$value];
     }
 
-    public function getKernel()
-    {
-        if (self::$kernel !== null)
-        {
-            return self::$kernel;
-        }
-
-        $kernel = new Foxrate_Kernel('dev', false);
-        $kernel->boot();
-
-        return self::$kernel = $kernel;
-    }
-
     /**
      * Extracts date from specific format
      * @param $date
@@ -191,4 +172,13 @@ class Foxrate_ReviewCoreIntegration_Block_Product_View extends Mage_Review_Block
         return $this->getKernel()->get('rci.review')->calcReviewDate($date);
     }
 
+    private function getKernel()
+    {
+        return Mage::getModel('reviewcoreintegration/kernelloader')->getKernel();
+    }
+
+    private function getConfig()
+    {
+        return $this->getKernel()->get('shop.configuration');
+    }
 }

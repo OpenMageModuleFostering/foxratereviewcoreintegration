@@ -9,11 +9,10 @@ class Foxrate_ReviewCoreIntegration_Helper_Processreviews extends Mage_Core_Help
 
     protected $foxrateGeneralData;
 
-
     public function detailedRatingHtml()
     {
         $entityId = Mage::app()->getRequest()->getParam('id');
-        $foxReviewModel = Mage::getModel('reviewcoreintegration/review');
+        $foxReviewModel = $this->getReviewModel();
         $productPage = $foxReviewModel->getReviewTotalDataById($entityId);
 
         //check empty reviews
@@ -31,8 +30,6 @@ class Foxrate_ReviewCoreIntegration_Helper_Processreviews extends Mage_Core_Help
         $this->assign('entityId', $entityId);
         return parent::_toHtml();
     }
-
-
 
     /**
      * One page of reviews from variety of users
@@ -84,22 +81,6 @@ class Foxrate_ReviewCoreIntegration_Helper_Processreviews extends Mage_Core_Help
         return $this->processedReviews;
     }
 
-    /**
-     * Lazy loader for review model
-     */
-    public function getReviewModel()
-    {
-        if (null == $this->reviewModel)
-        {
-            $this->reviewModel = Mage::getModel('reviewcoreintegration/review');
-        }
-        return $this->reviewModel;
-    }
-
-    public function reviewTotalsModel()
-    {
-        return Mage::getModel('reviewcoreintegration/reviewtotals');
-    }
     /**
      * Get entity id
      *
@@ -178,4 +159,19 @@ class Foxrate_ReviewCoreIntegration_Helper_Processreviews extends Mage_Core_Help
         return isset($processedReviewContainer['error']);
     }
 
+    public function getReviewModel()
+    {
+        return $this->getKernel()->get('rci.review');
+    }
+
+    public function reviewTotalsModel()
+    {
+        return $this->getKernel()->get('rci.review_totals');
+    }
+
+    //this is not recommended!
+    private function getKernel()
+    {
+        return Mage::getModel('reviewcoreintegration/kernelloader')->getKernel();
+    }
 }

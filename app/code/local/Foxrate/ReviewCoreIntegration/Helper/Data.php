@@ -10,11 +10,10 @@ class Foxrate_ReviewCoreIntegration_Helper_Data extends Mage_Core_Helper_Abstrac
     public function detailedRatingHtml()
     {
         $entityId = Mage::app()->getRequest()->getParam('id');
-        $foxReviewModel = Mage::getModel('reviewcoreintegration/review');
-        $this->reviewTotals = $foxReviewModel->getReviewTotalDataById($entityId);
+        $this->reviewTotals = $this->getReviewModel()->getReviewTotalDataById($entityId);
 
         //check empty reviews
-        $reviewsCount = $foxReviewModel->getTotalReviews($this->reviewTotals);
+        $reviewsCount = $this->getReviewModel()->getTotalReviews($this->reviewTotals);
 
         if ($reviewsCount == 0)
         {
@@ -24,21 +23,9 @@ class Foxrate_ReviewCoreIntegration_Helper_Data extends Mage_Core_Helper_Abstrac
 
         $this->assign('reviewLink', $this->getWriteReviewLink($entityId));
         $this->assign('reviewTotals', $this->reviewTotals);
-        $this->assign('foxrateReview', $foxReviewModel);
+        $this->assign('foxrateReview', $this->getReviewModel());
         $this->assign('entityId', $entityId);
         return parent::_toHtml();
-    }
-
-    /**
-     * Lazy loader for review model
-     */
-    public function getReviewModel()
-    {
-        if (null == $this->reviewModel)
-        {
-            $this->reviewModel = Mage::getModel('reviewcoreintegration/review');
-        }
-        return $this->reviewModel;
     }
 
     /**
@@ -59,8 +46,20 @@ class Foxrate_ReviewCoreIntegration_Helper_Data extends Mage_Core_Helper_Abstrac
      */
     public function formatCalcPercent($current, $total)
     {
-        $percent = Mage::getModel('reviewcoreintegration/reviewtotals')->calcPercent($current, $total);
+        $percent = $this->getKernel()->get('rci.review_totals')->calcPercent($current, $total);
         return number_format($percent, 2, ".", "");
     }
 
+    private function getKernel()
+    {
+        return Mage::getModel('reviewcoreintegration/kernelloader')->getKernel();
+    }
+
+    /**
+     * Lazy loader for review model
+     */
+    public function getReviewModel()
+    {
+        return $this->getKernel()->get('rci.review');
+    }
 }

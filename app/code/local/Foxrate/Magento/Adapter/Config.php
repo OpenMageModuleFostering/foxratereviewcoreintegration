@@ -39,39 +39,39 @@ class Foxrate_Magento_Adapter_Config extends Mage_Core_Model_Config_Data
         //order export group
         //----------------------------
         'foxrateUsername' =>
-            'ordersexport/foxrateOrdersExport/fox_api_username',
+            'reviewcoreintegration/foxrateReviewCoreIntegration/fox_api_username',
         'foxratePassword' =>
-            'ordersexport/foxrateOrdersExport/fox_api_password',
+            'reviewcoreintegration/foxrateReviewCoreIntegration/fox_api_password',
 
         //review cre integration group
         'foxratePR_WriteReview' =>
-            'ordersexport/foxrateReviewCoreIntegrationConf/write_review',
+            'reviewcoreintegration/foxrateReviewCoreIntegrationConf/write_review',
         'foxratePR_RevsPerPage' =>
-            'ordersexport/foxrateReviewCoreIntegrationConf/reviews_per_page',
+            'reviewcoreintegration/foxrateReviewCoreIntegrationConf/reviews_per_page',
         'foxratePR_SortBy' =>
-            'ordersexport/foxrateReviewCoreIntegrationConf/sort_by',
+            'reviewcoreintegration/foxrateReviewCoreIntegrationConf/sort_by',
         'foxratePR_SortOrder' =>
-            'ordersexport/foxrateReviewCoreIntegrationConf/sort_order',
+            'reviewcoreintegration/foxrateReviewCoreIntegrationConf/sort_order',
         'foxratePR_Summary' =>
-            'ordersexport/foxrateReviewCoreIntegrationConf/summary',
+            'reviewcoreintegration/foxrateReviewCoreIntegrationConf/summary',
         'foxratePR_OrderRichSnippet' =>
-            'ordersexport/foxrateReviewCoreIntegrationConf/rich_snippet_active',
+            'reviewcoreintegration/foxrateReviewCoreIntegrationConf/rich_snippet_active',
         'foxratePR_CatalogDisplay' =>
-            'ordersexport/foxrateReviewCoreIntegrationConf/catalog_display',
+            'reviewcoreintegration/foxrateReviewCoreIntegrationConf/catalog_display',
         'foxratePR_CatalogTooltip' =>
-            'ordersexport/foxrateReviewCoreIntegrationConf/catalog_tooltip',
+            'reviewcoreintegration/foxrateReviewCoreIntegrationConf/catalog_tooltip',
         'foxratePR_Page' =>
-            'ordersexport/foxrateReviewCoreIntegrationConf/page',
+            'reviewcoreintegration/foxrateReviewCoreIntegrationConf/page',
         'foxrate_lastProductReviewImport' =>
-            'ordersexport/foxrateReviewCoreIntegrationConf/last_product_review_import',
+            'reviewcoreintegration/foxrateReviewCoreIntegrationConf/last_product_review_import',
         'foxrateSellerId' =>
-            'ordersexport/foxrateReviewCoreIntegrationConf/seller_id',
+            'reviewcoreintegration/foxrateReviewCoreIntegrationConf/seller_id',
         'foxrateShopId' =>
-            'ordersexport/foxrateReviewCoreIntegrationConf/shop_id',
+            'reviewcoreintegration/foxrateReviewCoreIntegrationConf/shop_id',
         'foxrateOverrideShopId' =>
-            'ordersexport/foxrateReviewCoreIntegrationConf/shop_id_overide',
+            'reviewcoreintegration/foxrateReviewCoreIntegrationConf/shop_id_overide',
         'foxrateRichSnippetActive' =>
-            'ordersexport/foxrateReviewCoreIntegrationConf/rich_snippet_active',
+            'reviewcoreintegration/foxrateReviewCoreIntegrationConf/rich_snippet_active',
     );
 
     public function writeToLog($message)
@@ -82,7 +82,6 @@ class Foxrate_Magento_Adapter_Config extends Mage_Core_Model_Config_Data
 
     public function saveRegistryVar($type = null, $name, $var)
     {
-
         Mage::register($name, $var, true);
     }
 
@@ -91,9 +90,9 @@ class Foxrate_Magento_Adapter_Config extends Mage_Core_Model_Config_Data
         return Mage::registry($name);
     }
 
-    public function saveShopConfVar($type = null, $name, $var)
+    public function saveShopConfVar($name, $var, $type = null)
     {
-        Configuration::updateValue($this->getConfigKey($name), $var);
+        Mage::getModel('core/config')->saveConfig($this->getConfigKey($name), $var );
     }
 
     public function getShopConfVar($name)

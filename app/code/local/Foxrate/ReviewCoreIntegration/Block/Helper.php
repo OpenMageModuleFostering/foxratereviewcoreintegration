@@ -14,8 +14,6 @@ class Foxrate_ReviewCoreIntegration_Block_Helper extends Mage_Review_Block_Helpe
 
     protected $reviewTotalsData;
 
-    private static $kernel;
-
     protected function _construct()
     {
         parent::_construct();
@@ -23,15 +21,8 @@ class Foxrate_ReviewCoreIntegration_Block_Helper extends Mage_Review_Block_Helpe
 
     protected function _toHtml()
     {
-        $kernel = $this->getKernel();
-
         //force new Review Total model
-        /** @var Foxrate_ReviewCoreIntegration_Model_Reviewtotals reviewTotalsModel */
-//        $this->reviewTotalsModel = Mage::getModel('reviewcoreintegration/reviewtotals');
-//        $this->reviewTotals = $this->reviewTotalsModel->getReviewTotalData($this->getEntityId());
-
-        $reviewTotals = $kernel->get('rci.review_totals');
-        $reviewTotals->setProductId($this->getEntityId());
+        $reviewTotals = $this->createReviewTotalsModel($this->getEntityId());
 
         $this->assign('reviewLink', $this->getKernel()->get('rci.review')->getWriteReviewLink($this->getEntityId()));
         $this->assign('reviewTotalsData', $reviewTotals->getReviewTotalData($this->getEntityId()));
@@ -95,29 +86,39 @@ class Foxrate_ReviewCoreIntegration_Block_Helper extends Mage_Review_Block_Helpe
     }
 
     /**
+     *
+     *
+     * @param $productId
+     * @return Foxrate_Sdk_FoxrateRCI_ReviewTotals
+     */
+    public function createReviewTotalsModel($productId)
+    {
+        $this->reviewTotalsModel = new Foxrate_Sdk_FoxrateRCI_ReviewTotals(
+            $this->getKernel()->get("rci.review")
+        );
+
+        $this->reviewTotalsModel->setProductId($productId);
+
+        return $this->reviewTotalsModel;
+    }
+    /**
      * @return false|Mage_Core_Model_Abstract
      */
     public function reviewTotalsModel()
     {
         if (null == $this->reviewTotalsModel)
         {
-            $this->reviewTotalsModel = Mage::getModel('reviewcoreintegration/reviewtotals');
+            $this->reviewTotalsModel = $this->getKernel()->get('rci.review_totals');
         }
 
         return $this->reviewTotalsModel;
     }
 
-
-    public function getKernel()
+    /**
+     * @return Foxrate_Kernel
+     */
+    private function getKernel()
     {
-        if (self::$kernel !== null)
-        {
-            return self::$kernel;
-        }
-
-        $kernel = new Foxrate_Kernel('dev', false);
-        $kernel->boot();
-
-        return self::$kernel = $kernel;
+        return Mage::getModel('reviewcoreintegration/kernelloader')->getKernel();
     }
 }

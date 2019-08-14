@@ -1,11 +1,3 @@
-<?php
-
-$processedReviews = Mage::helper('reviewcoreintegration/processreviews');
-$foxrateProductReviews = $processedReviews->getRawProductReviews($this->getFoxrateProductId());
-$foxrateProductReviewList = isset($foxrateProductReviews['reviews']) ? $foxrateProductReviews['reviews'] : array();
-
-?>
-
 <div id="foxrateProductReviews">
     <div class="prodDESC">
 
@@ -15,9 +7,6 @@ $foxrateProductReviewList = isset($foxrateProductReviews['reviews']) ? $foxrateP
 
         <div class="frRating-top-all">
             <?php
-            $foxrateReviewGeneralData = $this->getReviewTotalData($this->getFoxrateProductId());
-            $pages = $processedReviews->getPageNav();
-
             if(empty($foxrateReviewGeneralData)): ?>
                 <div class="error-msg">System error.</div>
             <?php
