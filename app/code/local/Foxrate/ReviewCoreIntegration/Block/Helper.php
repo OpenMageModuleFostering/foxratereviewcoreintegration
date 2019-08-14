@@ -3,6 +3,7 @@ class Foxrate_ReviewCoreIntegration_Block_Helper extends Mage_Review_Block_Helpe
 {
     protected $foxrateAvailableTemplates = array(
         'default'   => 'foxrate/rating/detailed.phtml',
+        'empty'   => 'foxrate/rating/empty.phtml',
         'short'     => 'foxrate/review/helper/summary_short.phtml',
         //'short'     => 'foxrate/rating/detailed.phtml'
     );
@@ -46,10 +47,12 @@ class Foxrate_ReviewCoreIntegration_Block_Helper extends Mage_Review_Block_Helpe
             $this->assign('entityId', $this->getEntityId());
 
         } catch (Foxrate_Sdk_ApiBundle_Exception_ReviewsNotFoundException $e) {
+            $this->assign('foxrateFiDebugMessage', new Foxrate_Sdk_FoxrateRCI_Error($e->getMessage(), $e->getCode()));
             $this->setTemplate('foxrate/rating/empty.phtml');
             return parent::_toHtml();
 
         } catch (Foxrate_Sdk_ApiBundle_Exception_Communicate $e) {
+            $this->assign('foxrateFiDebugMessage', new Foxrate_Sdk_FoxrateRCI_Error($e->getMessage(), $e->getCode()));
             $this->setTemplate('review/helper/summary.phtml');
         }
 
@@ -70,7 +73,9 @@ class Foxrate_ReviewCoreIntegration_Block_Helper extends Mage_Review_Block_Helpe
            $this->writeReviewLink = $this->getKernel()->get('rci.review')->getWriteReviewLink($this->getEntityId());
         } catch (Foxrate_Sdk_ApiBundle_Exception_Communicate $e) {
             $this->useMagentoDefaultPage = true;
-            return parent::getSummaryHtml($product, $templateType, $displayIfNoReviews);
+            $templateType = 'empty';
+            $this->assign('foxrateFiDebugMessage', new Foxrate_Sdk_FoxrateRCI_Error($e->getMessage(), $e->getCode()));
+            //return parent::getSummaryHtml($product, $templateType, $displayIfNoReviews);
         }
 
         $this->assign('addReviewsLink', true);

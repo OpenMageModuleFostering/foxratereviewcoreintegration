@@ -104,7 +104,7 @@ class Foxrate_Magento_ShopOrders {
                     $url = $product->getProductUrl();
 
                     $productData['products_id'] = $product->getId();
-                    $productData['products_model'] = $product->getSku();
+                    $productData['product_sku'] = $product->getSku();
                     $productData['products_name'] = trim($product->getName());
                     $productData['products_image'] = $image;
                     $productData['products_url'] = $url;

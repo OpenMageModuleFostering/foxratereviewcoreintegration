@@ -36,6 +36,7 @@ class Foxrate_ReviewCoreIntegration_Block_Product_View_List extends Mage_Review_
 
         } catch (Foxrate_Sdk_ApiBundle_Exception_ReviewsNotFoundException $e) {
             $this->assign('foxrateFiError', $e->getMessage());
+            $this->assign('foxrateFiDebugMessage', new Foxrate_Sdk_FoxrateRCI_Error($e->getMessage(), $e->getCode()));
             return parent::_toHtml();
 
         }

@@ -21,6 +21,7 @@ class Foxrate_ReviewCoreIntegration_IndexController extends Mage_Core_Controller
 
             } catch (Foxrate_Sdk_ApiBundle_Exception_ReviewsNotFoundException $e) {
                 $this->assign('foxrateFiError', $e->getMessage());
+                $this->assign('foxrateFiDebugMessage', new Foxrate_Sdk_FoxrateRCI_Error($e->getMessage(), $e->getCode()));
             }
 
             $this->renderLayout();

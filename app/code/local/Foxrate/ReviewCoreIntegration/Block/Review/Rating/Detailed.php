@@ -34,10 +34,12 @@ class Foxrate_ReviewCoreIntegration_Block_Review_Rating_Detailed extends Mage_Co
             $this->assign('ratingHelper', $this->getKernel()->get('rci.rating_helper'));
 
         } catch (Foxrate_Sdk_ApiBundle_Exception_ReviewsNotFoundException $e) {
+            $this->assign('foxrateFiDebugMessage', new Foxrate_Sdk_FoxrateRCI_Error($e->getMessage(), $e->getCode()));
             $this->setTemplate('rating/empty.phtml');
             return parent::_toHtml();
 
         } catch (Foxrate_Sdk_ApiBundle_Exception_Communicate $e) {
+            $this->assign('foxrateFiDebugMessage', new Foxrate_Sdk_FoxrateRCI_Error($e->getMessage(), $e->getCode()));
             $this->getKernel()->get('shop.configuration')->log('Cannot connect to Foxrate API.');
         }
 

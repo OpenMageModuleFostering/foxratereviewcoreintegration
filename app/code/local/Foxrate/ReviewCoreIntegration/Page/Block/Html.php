@@ -23,6 +23,7 @@ class Foxrate_ReviewCoreIntegration_Page_Block_Html extends Mage_Page_Block_Html
 
             } catch (Foxrate_Sdk_ApiBundle_Exception_ReviewsNotFoundException $e) {
                 $this->assign('foxrateFiError', $e->getMessage());
+                $this->assign('foxrateFiDebugMessage', new Foxrate_Sdk_FoxrateRCI_Error($e->getMessage(), $e->getCode()));
                 
             } catch (Foxrate_Sdk_ApiBundle_Exception_Setup $e) {
                 $this->getKernel()->get('shop.configuration')->log('Cannot connect to Foxrate API or setup is not finished.');
