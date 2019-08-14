@@ -1,0 +1,25 @@
+{
+    "name": "foxrate/kernel-rci",
+    "type": "magento-library",
+    "description": "Adds kernel for shop systems review core integrations.",
+    "require": {
+        "php": ">=5.1.0",
+         "composer/installers": "~1.0"
+    },
+    "minimum-stability": "stable",
+    "authors": [
+        {
+            "name": "Darius Kasperavicius",
+            "email": "darius@foxrate.de"
+        }
+    ],
+    "autoload": {
+        "psr-0": {
+            "app\\code\\local\\Foxrate\\Sdk": ""
+        }
+    },
+    "target-dir": "app/code/local/Foxrate/Sdk",
+    "extra": {
+        "installer-name": "Sdk"
+    }
+}

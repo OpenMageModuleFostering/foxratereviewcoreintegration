@@ -28,19 +28,19 @@ class Foxrate_ReviewCoreIntegration_Model_Review extends Mage_Core_Model_Abstrac
      * Foxrate's api product
      * @var string
      */
-    protected $sFoxrateAPI2products= 'products';
+    protected $sFoxrateAPI2products = 'products';
 
     /**
      * Foxrate's api product
      * @var string
      */
-    protected $sFoxrateAPI2reviews= 'reviews';
+    protected $sFoxrateAPI2reviews = 'reviews';
 
     /**
      * Foxrate's api vote
      * @var string
      */
-    protected $sFoxrateAPI2vote= 'vote';
+    protected $sFoxrateAPI2vote = 'vote';
 
     /**
      * Foxrate's api abuse
@@ -52,7 +52,7 @@ class Foxrate_ReviewCoreIntegration_Model_Review extends Mage_Core_Model_Abstrac
      * Foxrate's api sellers
      * @var string
      */
-    protected $sFoxrateAPI2sellers= 'sellers';
+    protected $sFoxrateAPI2sellers = 'sellers';
 
     /**
      * Foxrate's api ratings
@@ -105,7 +105,7 @@ class Foxrate_ReviewCoreIntegration_Model_Review extends Mage_Core_Model_Abstrac
      * Full Path to cached product reviews directory
      * @var string
      */
-    protected $sCachedProdRevsDir= "";
+    protected $sCachedProdRevsDir = "";
 
     /**
      * Directory name for main cached files of Foxrate
@@ -142,7 +142,7 @@ class Foxrate_ReviewCoreIntegration_Model_Review extends Mage_Core_Model_Abstrac
      * Foxrate's shop id
      * @var string
      */
-    protected $sFoxrateAPIShopId= "";
+    protected $sFoxrateAPIShopId = "";
 
     /**
      * Foxrate's product review import logger path
@@ -154,13 +154,13 @@ class Foxrate_ReviewCoreIntegration_Model_Review extends Mage_Core_Model_Abstrac
      * Import settings for product reviews
      * @var mixed|string
      */
-    protected $sFoxrateSettings=array();
+    protected $sFoxrateSettings = array();
 
     /**
      * RegExp for date extraction from api
      * @var string
      */
-    protected $regExpDateFromApi ="/(\d+-\d+-\d+)T\d+:\d+:\d+\+\d+/";
+    protected $regExpDateFromApi = "/(\d+-\d+-\d+)T\d+:\d+:\d+\+\d+/";
 
     /**
      * Review variable from api
@@ -185,7 +185,6 @@ class Foxrate_ReviewCoreIntegration_Model_Review extends Mage_Core_Model_Abstrac
      * @var string
      */
     protected $sAPIResCurPage = 'current_page';
-
 
 
     /**
@@ -236,26 +235,48 @@ class Foxrate_ReviewCoreIntegration_Model_Review extends Mage_Core_Model_Abstrac
         return $this->_getData('_remote_addr');
     }
 
-    public function setSettings() {
+    public function setSettings()
+    {
 
         $sTempFileDirectory = $this->config->getConfigParam("sCompileDir");
-        $this->sCachedProdRevsDir = $sTempFileDirectory.$this->sFoxrateCachedFilesDir."/".$this->sFoxrateCachedProductsSubDir;
-        $this->sCachedProdRevsDirTemp = $sTempFileDirectory.$this->sFoxrateCachedFilesDir."/".$this->sFoxrateCachedProductsSubDir."/".$this->sFoxrateCachedProductsTemp;
+        $this->sCachedProdRevsDir = $sTempFileDirectory . $this->sFoxrateCachedFilesDir . "/" . $this->sFoxrateCachedProductsSubDir;
+        $this->sCachedProdRevsDirTemp = $sTempFileDirectory . $this->sFoxrateCachedFilesDir . "/" . $this->sFoxrateCachedProductsSubDir . "/" . $this->sFoxrateCachedProductsTemp;
         $this->sFoxrateAPIUsername = $this->config->getConfigParam("foxrateUsername");
         $this->sFoxrateAPIPassword = $this->config->getConfigParam("foxratePassword");
 
         $revsPerPage = $this->config->getConfigParam('foxratePR_RevsPerPage');
-        if(!$revsPerPage){
+        if (!$revsPerPage) {
             $revsPerPage = $this->sFoxrateDefaultRevsPerPage;
         }
         $this->sFoxrateSettings = array_merge($this->sFoxrateSettings, array('foxratePR_RevsPerPage' => $revsPerPage));
-        $this->sFoxrateSettings = array_merge($this->sFoxrateSettings, array('foxratePR_SortBy' => $this->config->getConfigParam('foxratePR_SortBy')));
-        $this->sFoxrateSettings = array_merge($this->sFoxrateSettings, array('foxratePR_SortOrder' => $this->config->getConfigParam('foxratePR_SortOrder')));
-        $this->sFoxrateSettings = array_merge($this->sFoxrateSettings, array('foxratePR_Summary' => $this->config->getConfigParam('foxratePR_Summary')));
-        $this->sFoxrateSettings = array_merge($this->sFoxrateSettings, array('foxratePR_OrderRichSnippet' => $this->config->getConfigParam('foxratePR_OrderRichSnippet')));
-        $this->sFoxrateSettings = array_merge($this->sFoxrateSettings, array('foxratePR_CatalogDisplay' => $this->config->getConfigParam('foxratePR_CatalogDisplay')));
-        $this->sFoxrateSettings = array_merge($this->sFoxrateSettings, array('foxratePR_CatalogTooltip' => $this->config->getConfigParam('foxratePR_CatalogTooltip')));
-        $this->sFoxrateSettings = array_merge($this->sFoxrateSettings, array('foxratePR_WriteReview' => $this->config->getConfigParam('foxratePR_WriteReview')));
+        $this->sFoxrateSettings = array_merge(
+            $this->sFoxrateSettings,
+            array('foxratePR_SortBy' => $this->config->getConfigParam('foxratePR_SortBy'))
+        );
+        $this->sFoxrateSettings = array_merge(
+            $this->sFoxrateSettings,
+            array('foxratePR_SortOrder' => $this->config->getConfigParam('foxratePR_SortOrder'))
+        );
+        $this->sFoxrateSettings = array_merge(
+            $this->sFoxrateSettings,
+            array('foxratePR_Summary' => $this->config->getConfigParam('foxratePR_Summary'))
+        );
+        $this->sFoxrateSettings = array_merge(
+            $this->sFoxrateSettings,
+            array('foxratePR_OrderRichSnippet' => $this->config->getConfigParam('foxratePR_OrderRichSnippet'))
+        );
+        $this->sFoxrateSettings = array_merge(
+            $this->sFoxrateSettings,
+            array('foxratePR_CatalogDisplay' => $this->config->getConfigParam('foxratePR_CatalogDisplay'))
+        );
+        $this->sFoxrateSettings = array_merge(
+            $this->sFoxrateSettings,
+            array('foxratePR_CatalogTooltip' => $this->config->getConfigParam('foxratePR_CatalogTooltip'))
+        );
+        $this->sFoxrateSettings = array_merge(
+            $this->sFoxrateSettings,
+            array('foxratePR_WriteReview' => $this->config->getConfigParam('foxratePR_WriteReview'))
+        );
         $this->sFoxrateSettings = array_merge($this->sFoxrateSettings, array("foxratePR_Page" => 1));
     }
 
@@ -267,14 +288,12 @@ class Foxrate_ReviewCoreIntegration_Model_Review extends Mage_Core_Model_Abstrac
      */
     public function getReviewTotalDataById($sProductId)
     {
-        try{
+        try {
             $objData = $this->loadProductsRevsGeneral_Cache($sProductId);
             $generalRevInfo = $this->convertObjectToArray($objData);
             krsort($generalRevInfo['counts']);
-        }
-        catch (Exception $e)
-        {
-            $generalRevInfo = array( "error" => $e->getMessage());
+        } catch (Exception $e) {
+            $generalRevInfo = array("error" => $e->getMessage());
         }
         return $generalRevInfo;
     }
@@ -290,16 +309,13 @@ class Foxrate_ReviewCoreIntegration_Model_Review extends Mage_Core_Model_Abstrac
     {
         $cacheExpired = $this->hasCacheExpired();
 
-        if($cacheExpired)
-        {
-            try{
+        if ($cacheExpired) {
+            try {
                 $this->checkUserExist();
                 $productIds = $this->getProductIds();
                 $this->getSaveProductsReviews($productIds, true);
-            }
-            catch(Exception $ex)
-            {
-                return $this->config->writeToLog("Error: ".$ex->getMessage());
+            } catch (Exception $ex) {
+                return $this->config->writeToLog("Error: " . $ex->getMessage());
             }
             $this->updateCacheImportDate();
             return $this->config->writeToLog("Status: Imported Reviews Successfully");
@@ -343,18 +359,18 @@ class Foxrate_ReviewCoreIntegration_Model_Review extends Mage_Core_Model_Abstrac
      */
     protected function isCacheLocked_CacheDemand($productId, $format = 'json')
     {
-        $lockPath = $this->sCachedProdRevsDir."/".$productId.".lock.".$format;
-        if(!file_exists($lockPath)){
+        $lockPath = $this->sCachedProdRevsDir . "/" . $productId . ".lock." . $format;
+        if (!file_exists($lockPath)) {
             return false;
         }
         $lockTimeRaw = file_get_contents($lockPath);
         $lockTimeArr = json_decode($lockTimeRaw);
         $lockTime = $lockTimeArr->lock_time;
         $currentTime = strtotime("- {$this->sReviewsExpireLockCacheDemand} minutes");
-        if($lockTime <= $currentTime){
+        if ($lockTime <= $currentTime) {
             $this->unlockOnDemandCache_Product($productId);
             return false;
-        }else{
+        } else {
             return true;
         }
     }
@@ -366,7 +382,7 @@ class Foxrate_ReviewCoreIntegration_Model_Review extends Mage_Core_Model_Abstrac
     protected function lockOnDemandCache_Product($prodId)
     {
         $data = json_encode(array('lock_time' => strtotime('now')));
-        $name = $prodId.".lock";
+        $name = $prodId . ".lock";
         $this->storeToMainCache($name, $data, 'json');
     }
 
@@ -381,18 +397,17 @@ class Foxrate_ReviewCoreIntegration_Model_Review extends Mage_Core_Model_Abstrac
      */
     protected function unlockOnDemandCache_Product($prodId)
     {
-        $pathName=$this->sCachedProdRevsDir."/".$prodId.".lock.json";
+        $pathName = $this->sCachedProdRevsDir . "/" . $prodId . ".lock.json";
         $result = unlink($pathName);
-        if(!$result)
-        {
-            throw new Exception("Lock removal failed for path: ".$pathName);
+        if (!$result) {
+            throw new Exception("Lock removal failed for path: " . $pathName);
         }
     }
 
     /**
      * Updates date when last import finished successfully
      */
-    protected  function updateCacheImportDate()
+    protected function updateCacheImportDate()
     {
         $this->config->saveShopConfVar("string", $this->sFoxrateConfNameImportDate, strtotime("now"));
     }
@@ -405,7 +420,7 @@ class Foxrate_ReviewCoreIntegration_Model_Review extends Mage_Core_Model_Abstrac
     protected function getProductIds()
     {
         $productIds = $this->loadProductIds();
-        if(!$productIds){
+        if (!$productIds) {
             throw new Exception("No products were found in database");
         }
         return $productIds;
@@ -419,50 +434,52 @@ class Foxrate_ReviewCoreIntegration_Model_Review extends Mage_Core_Model_Abstrac
     protected function getSaveProductsReviews($productIds, $fullImport)
     {
         $storeTempCache = false;
-        try
-        {
+        try {
             $this->createDir($this->sCachedProdRevsDirTemp);
         } catch (Exception $e) {
             throw new Exception($e->getMessage() . '. Please make shure your cache dir is writable.');
         }
 
-        if($fullImport){
+        if ($fullImport) {
             $this->deleteDirContents($this->sCachedProdRevsDirTemp);
             $storeTempCache = true;
         }
         $this->loadSellerId_Foxrate();
         $this->loadShopId_Foxrate();
-        foreach($productIds as $productId)
-        {
+        foreach ($productIds as $productId) {
             $productId = is_array($productId) ? $productId[0] : $productId;
             try {
-                $page=0;
-                do{
+                $page = 0;
+                do {
                     $page++;
-                    $this->sFoxrateSettings=array_merge($this->sFoxrateSettings, array("foxratePR_Page" => $page));
+                    $this->sFoxrateSettings = array_merge($this->sFoxrateSettings, array("foxratePR_Page" => $page));
                     $productRev = $this->requestSingleProductReview_Foxrate($productId);
-                    $status = isset($productRev->status) ? $productRev->status!="error" : true;
-                    if($status && $productRev->reviews_count != 0)
-                    {
-                        $this->storeToCache($productId . ".page".$productRev->current_page, json_encode($productRev), $storeTempCache);
+                    $status = isset($productRev->status) ? $productRev->status != "error" : true;
+                    if ($status && $productRev->reviews_count != 0) {
+                        $this->storeToCache(
+                            $productId . ".page" . $productRev->current_page,
+                            json_encode($productRev),
+                            $storeTempCache
+                        );
                     }
-                }while(($productRev->pages_count != $productRev->current_page) &&($productRev->reviews_count != 0));
+                } while (($productRev->pages_count != $productRev->current_page) && ($productRev->reviews_count != 0));
 
                 $productRevGen = $this->requestSingleProductReviewGeneral_Foxrate($productId);
 
-                $genStatus = isset($productRevGen->status)  ? $productRevGen->status!="error" : true;
-                if(!$genStatus || $productRevGen->count == 0)
-                {
-                    $productRevGen=array('count' => '0');
+                $genStatus = isset($productRevGen->status) ? $productRevGen->status != "error" : true;
+                if (!$genStatus || $productRevGen->count == 0) {
+                    $productRevGen = array('count' => '0');
                 }
-                $this->storeToCache($productId .".gener", json_encode($productRevGen), $storeTempCache);
+                $this->storeToCache($productId . ".gener", json_encode($productRevGen), $storeTempCache);
             } catch (Exception $e) {
-                $this->config->writeToLog("Product with id " . $productId . " reviews not imported. " . $e->getMessage());
+                $this->config->writeToLog(
+                    "Product with id " . $productId . " reviews not imported. " . $e->getMessage()
+                );
             }
         }
 
-        $this->sFoxrateSettings=array_merge($this->sFoxrateSettings, array("foxratePR_Page" => 1));
-        if($fullImport){
+        $this->sFoxrateSettings = array_merge($this->sFoxrateSettings, array("foxratePR_Page" => 1));
+        if ($fullImport) {
             $this->moveCacheTempToPermanent();
         }
     }
@@ -472,36 +489,39 @@ class Foxrate_ReviewCoreIntegration_Model_Review extends Mage_Core_Model_Abstrac
      * Move contents from temporary cache to permanent
      * @return null
      */
-    protected function moveCacheTempToPermanent(){
+    protected function moveCacheTempToPermanent()
+    {
         $this->deleteDirContents($this->sCachedProdRevsDir);
         $this->copyDirContents($this->sCachedProdRevsDirTemp, $this->sCachedProdRevsDir);
         $this->deleteDirContents($this->sCachedProdRevsDirTemp);
     }
+
     /**
      * Copies contents from source to destination directory
      * @param string $source
      * @param string $destination
      * @return null
      */
-    protected function copyDirContents($source, $destination){
-        $success=true;
-        if(!is_dir($source))
-        {
-            throw new Exception("Directory copying failed, source directory does not exist: ". $source);
+    protected function copyDirContents($source, $destination)
+    {
+        $success = true;
+        if (!is_dir($source)) {
+            throw new Exception("Directory copying failed, source directory does not exist: " . $source);
         }
         $this->createDir($destination);
-        $fileList=scandir($source);
-        foreach($fileList as $singleFile)
-        {
+        $fileList = scandir($source);
+        foreach ($fileList as $singleFile) {
 
-            $sourcePath=$source."/".$singleFile;
-            $destinPath=$destination."/".$singleFile;
+            $sourcePath = $source . "/" . $singleFile;
+            $destinPath = $destination . "/" . $singleFile;
 
             if (!is_dir($sourcePath)) {
                 $result = copy($sourcePath, $destinPath);
-                if(!$result && $singleFile != "." && $singleFile != ".."){
-                    $this->config->writeToLog("Warning: Failed to copy file from : '". $sourcePath ."' to '".$destinPath."'");
-                    $success=false;
+                if (!$result && $singleFile != "." && $singleFile != "..") {
+                    $this->config->writeToLog(
+                        "Warning: Failed to copy file from : '" . $sourcePath . "' to '" . $destinPath . "'"
+                    );
+                    $success = false;
                 }
             }
         }
@@ -516,17 +536,16 @@ class Foxrate_ReviewCoreIntegration_Model_Review extends Mage_Core_Model_Abstrac
      */
     protected function deleteDirContents($dir)
     {
-        $fileList=scandir($dir);
-        $success=true;
-        foreach($fileList as $singleFile)
-        {
-            $path=$dir."/".$singleFile;
+        $fileList = scandir($dir);
+        $success = true;
+        foreach ($fileList as $singleFile) {
+            $path = $dir . "/" . $singleFile;
 
             if (!is_dir($path)) {
-                $result=@unlink($path);
-                if(!$result && $singleFile != "." && $singleFile != ".." && $singleFile != $this->sFoxrateCachedProductsTemp){
-                    $this->config->writeToLog("Warning: Failed to remove file: ". $path);
-                    $success=false;
+                $result = @unlink($path);
+                if (!$result && $singleFile != "." && $singleFile != ".." && $singleFile != $this->sFoxrateCachedProductsTemp) {
+                    $this->config->writeToLog("Warning: Failed to remove file: " . $path);
+                    $success = false;
                 }
             };
 
@@ -542,22 +561,23 @@ class Foxrate_ReviewCoreIntegration_Model_Review extends Mage_Core_Model_Abstrac
     protected function createDir($dir)
     {
         $res = true;
-        if(!is_dir($dir))
-        {
+        if (!is_dir($dir)) {
             $res = $this->recursive_mkdir($dir, 0777, true);
         }
-        if(!$res)
-        {
-            throw new Exception("Failed to create directory structure: ". $dir);
+        if (!$res) {
+            throw new Exception("Failed to create directory structure: " . $dir);
         }
     }
 
-    function recursive_mkdir($path, $mode = 0777) {
-        $dirs = explode(DIRECTORY_SEPARATOR , $path);
+    function recursive_mkdir($path, $mode = 0777)
+    {
+        $dirs = explode(DIRECTORY_SEPARATOR, $path);
         $count = count($dirs);
         $path = '';
         for ($i = 0; $i < $count; ++$i) {
-            if (!$dirs[$i]) continue;
+            if (!$dirs[$i]) {
+                continue;
+            }
             $path .= DIRECTORY_SEPARATOR . $dirs[$i];
             if (!is_dir($path) && !@mkdir($path, $mode)) {
                 return false;
@@ -573,21 +593,21 @@ class Foxrate_ReviewCoreIntegration_Model_Review extends Mage_Core_Model_Abstrac
      * @param $isMainCacheStorage
      * @param string $format
      */
-    protected function storeToCache($name, $data, $isTempCacheStorage, $format="json")
+    protected function storeToCache($name, $data, $isTempCacheStorage, $format = "json")
     {
-        if($isTempCacheStorage){
+        if ($isTempCacheStorage) {
             $baseCachePath = $this->sCachedProdRevsDirTemp;
-        }else{
+        } else {
             $baseCachePath = $this->sCachedProdRevsDir;
         }
 
-        $pathName=$baseCachePath."/".$name.".".$format;
-        $saveResponse=file_put_contents($pathName, $data);
-        if(!$saveResponse)
-        {
-            $this->config->writeToLog("Warning: Couldn't save data to temp cache directory: ".$pathName);
+        $pathName = $baseCachePath . "/" . $name . "." . $format;
+        $saveResponse = file_put_contents($pathName, $data);
+        if (!$saveResponse) {
+            $this->config->writeToLog("Warning: Couldn't save data to temp cache directory: " . $pathName);
         }
     }
+
     /**
      * Stores given data to main cache
      * @param $name
@@ -595,15 +615,15 @@ class Foxrate_ReviewCoreIntegration_Model_Review extends Mage_Core_Model_Abstrac
      * @param string $format
      * @throws Exception
      */
-    protected function storeToMainCache($name, $data, $format="json")
+    protected function storeToMainCache($name, $data, $format = "json")
     {
-        $pathName=$this->sCachedProdRevsDir."/".$name.".".$format;
-        $saveResponse=file_put_contents($pathName, $data);
-        if(!$saveResponse)
-        {
-            $this->config->writeToLog("Warning: Couldn't save data to main cache directory: ".$pathName);
+        $pathName = $this->sCachedProdRevsDir . "/" . $name . "." . $format;
+        $saveResponse = file_put_contents($pathName, $data);
+        if (!$saveResponse) {
+            $this->config->writeToLog("Warning: Couldn't save data to main cache directory: " . $pathName);
         }
     }
+
     /**
      * Gets single product review, builds api call, then uses it on curl with basic auth.
      * @param $productId
@@ -642,9 +662,8 @@ class Foxrate_ReviewCoreIntegration_Model_Review extends Mage_Core_Model_Abstrac
 
         $resultObject = $this->makeMageRequest($apiCall, $this->sFoxrateAPIUsername, $this->sFoxrateAPIPassword);
 
-        if(empty($resultObject->id))
-        {
-            throw new Exception("Couldn't get current seller Id from Foxrate. Url: ". $apiCall);
+        if (empty($resultObject->id)) {
+            throw new Exception("Couldn't get current seller Id from Foxrate. Url: " . $apiCall);
         }
         $myConfig->saveShopConfVar('string', 'foxrateSellerId', $resultObject->id);
         $this->sFoxrateAPI2sellerId = $resultObject->id;
@@ -660,7 +679,7 @@ class Foxrate_ReviewCoreIntegration_Model_Review extends Mage_Core_Model_Abstrac
 
         if (is_null($sellerId)) {
             $this->loadSellerId_Foxrate();
-        }else{
+        } else {
             $this->sFoxrateAPI2sellerId = $sellerId;
         }
     }
@@ -677,7 +696,7 @@ class Foxrate_ReviewCoreIntegration_Model_Review extends Mage_Core_Model_Abstrac
 
         if (is_null($shopId)) {
             $this->loadShopId_Foxrate();
-        }else{
+        } else {
             $this->sFoxrateAPIShopId = $shopId;
         }
 
@@ -695,22 +714,20 @@ class Foxrate_ReviewCoreIntegration_Model_Review extends Mage_Core_Model_Abstrac
 
         $myConfig = $this->config;
         $shopIdOverride = $myConfig->getConfigParam('foxrateOverrideShopId');
-        if(isset($shopIdOverride))
-        {
+        if (isset($shopIdOverride)) {
             $this->sFoxrateAPIShopId = $shopIdOverride;
             return 0;
         }
 
         $apiCall = $this->apiCallBuilder("currentSellerChannelsId", "json");
         $ShopIdAndUrl = $this->makeMageRequest($apiCall, $this->sFoxrateAPIUsername, $this->sFoxrateAPIPassword);
-        if(!$ShopIdAndUrl[0]->id)
-        {
-            throw new Exception("Couldn't get shop Id from Foxrate. Url: ". $apiCall);
+        if (!$ShopIdAndUrl[0]->id) {
+            throw new Exception("Couldn't get shop Id from Foxrate. Url: " . $apiCall);
         }
         $ShopId = $this->findShopIdByUrlMatch($ShopIdAndUrl);
-        if(!$ShopId)
-        {
-            throw new Exception("The url received from Foxrate's api does not match this domain. This url '". $this->config->getShopUrl() ."'");
+        if (!$ShopId) {
+            throw new Exception("The url received from Foxrate's api does not match this domain. This url '" . $this->config->getShopUrl(
+            ) . "'");
         }
         $myConfig->saveShopConfVar('string', 'foxrateShopId', $ShopId);
         $this->sFoxrateAPIShopId = $ShopId;
@@ -722,12 +739,11 @@ class Foxrate_ReviewCoreIntegration_Model_Review extends Mage_Core_Model_Abstrac
     protected function findShopIdByUrlMatch($ShopIdAndUrl)
     {
         $domainRaw = Mage::helper('core/url')->getHomeUrl();
-        $domain=preg_replace("/(http:\/\/|https:\/\/|www.)/", "", $domainRaw);
+        $domain = preg_replace("/(http:\/\/|https:\/\/|www.)/", "", $domainRaw);
 
-        foreach($ShopIdAndUrl as $singleBlock)
-        {
-            $cleanUrl=preg_replace("/(http:\/\/|https:\/\/|www.)/", "", $singleBlock->name);
-            $matchResult = preg_match("/". $cleanUrl .".*|.*hotdigital.*/", $domain);
+        foreach ($ShopIdAndUrl as $singleBlock) {
+            $cleanUrl = preg_replace("/(http:\/\/|https:\/\/|www.)/", "", $singleBlock->name);
+            $matchResult = preg_match("/" . $cleanUrl . ".*|.*hotdigital.*/", $domain);
             if ($matchResult == 1 || $matchResult == true) {
                 return $singleBlock->id;
             }
@@ -746,53 +762,49 @@ class Foxrate_ReviewCoreIntegration_Model_Review extends Mage_Core_Model_Abstrac
      */
     protected function apiCallBuilder($method, $format = "json", $params = false)
     {
-        $call="";
-        $extraParams="";
+        $call = "";
+        $extraParams = "";
 
 
-        $callBase = $this->getFoxrateApiUrl()."/".$this->sFoxrateAPI2version;
-        switch($method){
+        $callBase = $this->getFoxrateApiUrl() . "/" . $this->sFoxrateAPI2version;
+        switch ($method) {
             case "currentSellerId":
-                $call=$callBase."/".$this->sFoxrateAPI2sellers."/id";
+                $call = $callBase . "/" . $this->sFoxrateAPI2sellers . "/id";
                 break;
             case "productGeneral":
-                if (!is_array($params))
-                {
+                if (!is_array($params)) {
                     throw new Exception('Params not set!');
                 }
-                $call=$callBase."/".$this->sFoxrateAPI2sellers."/".$this->sFoxrateAPI2sellerId."/".$this->sFoxrateAPI2products."/".$params["productId"]."/".$this->sFoxrateAPI2ratings;
-                $extraParams=$this->apiCallOptionalParamsBuilder();
+                $call = $callBase . "/" . $this->sFoxrateAPI2sellers . "/" . $this->sFoxrateAPI2sellerId . "/" . $this->sFoxrateAPI2products . "/" . $params["productId"] . "/" . $this->sFoxrateAPI2ratings;
+                $extraParams = $this->apiCallOptionalParamsBuilder();
                 break;
             case "currentSellerChannelsId":
-                $call=$callBase."/".$this->sFoxrateAPI2sellers."/".$this->sFoxrateAPI2sellerId."/".$this->sFoxrateAPI2channels;
+                $call = $callBase . "/" . $this->sFoxrateAPI2sellers . "/" . $this->sFoxrateAPI2sellerId . "/" . $this->sFoxrateAPI2channels;
                 break;
             case 'voteProductReview':
-                if (!is_array($params))
-                {
+                if (!is_array($params)) {
                     throw new Exception('Params not set!');
                 }
-                $call=$callBase."/".$this->sFoxrateAPI2sellers."/".$this->sFoxrateAPI2sellerId."/".$this->sFoxrateAPI2products;
-                $call.="/".$this->sFoxrateAPI2reviews."/".$params["reviewId"]."/".$this->sFoxrateAPI2vote;
+                $call = $callBase . "/" . $this->sFoxrateAPI2sellers . "/" . $this->sFoxrateAPI2sellerId . "/" . $this->sFoxrateAPI2products;
+                $call .= "/" . $this->sFoxrateAPI2reviews . "/" . $params["reviewId"] . "/" . $this->sFoxrateAPI2vote;
                 break;
             case 'abuseReview':
-                if (!is_array($params))
-                {
+                if (!is_array($params)) {
                     throw new Exception('Params not set!');
                 }
-                $call=$callBase."/".$this->sFoxrateAPI2sellers."/".$this->sFoxrateAPI2sellerId."/".$this->sFoxrateAPI2products;
-                $call.="/".$this->sFoxrateAPI2reviews."/".$params["reviewId"]."/".$this->sFoxrateAPI2abuse;
+                $call = $callBase . "/" . $this->sFoxrateAPI2sellers . "/" . $this->sFoxrateAPI2sellerId . "/" . $this->sFoxrateAPI2products;
+                $call .= "/" . $this->sFoxrateAPI2reviews . "/" . $params["reviewId"] . "/" . $this->sFoxrateAPI2abuse;
                 break;
             case "productReviews":
-                if (!is_array($params))
-                {
+                if (!is_array($params)) {
                     throw new Exception('Params not set!');
                 }
-                $call=$callBase."/".$this->sFoxrateAPI2sellers."/".$this->sFoxrateAPI2sellerId."/".$this->sFoxrateAPI2products."/".$params["productId"];
-                $call.="/".$this->sFoxrateAPI2reviews;
-                $extraParams=$this->apiCallOptionalParamsBuilder();
+                $call = $callBase . "/" . $this->sFoxrateAPI2sellers . "/" . $this->sFoxrateAPI2sellerId . "/" . $this->sFoxrateAPI2products . "/" . $params["productId"];
+                $call .= "/" . $this->sFoxrateAPI2reviews;
+                $extraParams = $this->apiCallOptionalParamsBuilder();
                 break;
         }
-        $call.=".".$format.$extraParams;
+        $call .= "." . $format . $extraParams;
         return $call;
     }
 
@@ -803,44 +815,39 @@ class Foxrate_ReviewCoreIntegration_Model_Review extends Mage_Core_Model_Abstrac
      */
     protected function apiCallOptionalParamsBuilder()
     {
-        $urlParams = "filter[channel]=".$this->sFoxrateAPIShopId."&";
-        $paramName="";
-        foreach($this->sFoxrateSettings as $settingKey => $settingValue)
-        {
-            if(($settingKey!="") && ($settingValue!=""))
-            {
-                switch($settingKey)
-                {
+        $urlParams = "filter[channel]=" . $this->sFoxrateAPIShopId . "&";
+        $paramName = "";
+        foreach ($this->sFoxrateSettings as $settingKey => $settingValue) {
+            if (($settingKey != "") && ($settingValue != "")) {
+                switch ($settingKey) {
                     case 'foxratePR_SortBy':
-                        $paramName= "sort_by";
-                        $urlChanges=true;
+                        $paramName = "sort_by";
+                        $urlChanges = true;
                         break;
                     case 'foxratePR_SortOrder':
-                        $paramName= "sort_order";
-                        $urlChanges=true;
+                        $paramName = "sort_order";
+                        $urlChanges = true;
                         break;
                     case 'foxratePR_Page':
-                        $paramName= "page";
-                        $urlChanges=true;
+                        $paramName = "page";
+                        $urlChanges = true;
                         break;
                     case 'foxratePR_RevsPerPage':
-                        $paramName= "limit";
-                        $urlChanges=true;
+                        $paramName = "limit";
+                        $urlChanges = true;
                         break;
                     default:
-                        $urlChanges=false;
+                        $urlChanges = false;
                         break;
                 }
-                if($urlChanges)
-                {
-                    $urlParams.=$paramName."=".$settingValue."&";
+                if ($urlChanges) {
+                    $urlParams .= $paramName . "=" . $settingValue . "&";
                 }
             }
         }
 
-        if($urlParams!="")
-        {
-            $urlParams="?".$urlParams;
+        if ($urlParams != "") {
+            $urlParams = "?" . $urlParams;
         }
         return $urlParams;
     }
@@ -852,17 +859,14 @@ class Foxrate_ReviewCoreIntegration_Model_Review extends Mage_Core_Model_Abstrac
      */
     protected function checkUserExist()
     {
-        if(!$this->sFoxrateAPIUsername)
-        {
+        if (!$this->sFoxrateAPIUsername) {
             throw new Exception("Foxrate Api Username is not set");
         }
-        if(!$this->sFoxrateAPIPassword)
-        {
+        if (!$this->sFoxrateAPIPassword) {
             throw new Exception("Foxrate Api Password is not set");
         }
-        if(!$this->foxrateConnector->isUserExist($this->sFoxrateAPIUsername, $this->sFoxrateAPIPassword))
-        {
-            throw new Exception("User is not found in Foxrate: Username - '". $this->sFoxrateAPIUsername ."' password - '".$this->sFoxrateAPIPassword ."'");
+        if (!$this->foxrateConnector->isUserExist($this->sFoxrateAPIUsername, $this->sFoxrateAPIPassword)) {
+            throw new Exception("User is not found in Foxrate: Username - '" . $this->sFoxrateAPIUsername . "' password - '" . $this->sFoxrateAPIPassword . "'");
         }
     }
 
@@ -889,9 +893,9 @@ class Foxrate_ReviewCoreIntegration_Model_Review extends Mage_Core_Model_Abstrac
         $opts[CURLOPT_TIMEOUT] = 60;
         $opts[CURLOPT_HTTPHEADER] = $aHeaders;
         $opts[CURLOPT_HTTPAUTH] = CURLAUTH_BASIC;
-        $opts[CURLOPT_USERPWD] = $username.":".$password;
+        $opts[CURLOPT_USERPWD] = $username . ":" . $password;
         $opts[CURLOPT_URL] = $sUrl;
-        if(!is_null($aParams)){
+        if (!is_null($aParams)) {
             $opts[CURLOPT_POSTFIELDS] = $aParams;
         }
 
@@ -903,8 +907,8 @@ class Foxrate_ReviewCoreIntegration_Model_Review extends Mage_Core_Model_Abstrac
             $en = curl_errno($ch);
             $e = curl_error($ch);
             curl_close($ch);
-            $this->config->writeToLog("Warning: cUrl Error: ".$en. " - ".$e);
-            $this->config->writeToLog("Warning: cUrl Error url: ".$sUrl);
+            $this->config->writeToLog("Warning: cUrl Error: " . $en . " - " . $e);
+            $this->config->writeToLog("Warning: cUrl Error url: " . $sUrl);
         }
         curl_close($ch);
 
@@ -919,10 +923,12 @@ class Foxrate_ReviewCoreIntegration_Model_Review extends Mage_Core_Model_Abstrac
 
         $client->setUri($url)
             ->setMethod('GET')
-            ->setConfig(array(
-                    'maxredirects'=>0,
-                    'timeout'=>60,
-                ));
+            ->setConfig(
+                array(
+                    'maxredirects' => 0,
+                    'timeout' => 60,
+                )
+            );
 
         if (isset($headers)) {
             $client->setHeaders($headers);
@@ -946,8 +952,7 @@ class Foxrate_ReviewCoreIntegration_Model_Review extends Mage_Core_Model_Abstrac
 
     protected function handleRequest(Zend_Http_Response $result)
     {
-        if ($result->isError())
-        {
+        if ($result->isError()) {
             $bodyObject = json_decode($result->getRawBody());
             $error_message = "Api returned error with message: " . $bodyObject->status_text;
             $this->config->writeToLog($error_message);
@@ -963,18 +968,17 @@ class Foxrate_ReviewCoreIntegration_Model_Review extends Mage_Core_Model_Abstrac
      * @param string $format
      * @return bool
      */
-    protected function hasCacheExpired_CacheDemand($prodId, $format='json')
+    protected function hasCacheExpired_CacheDemand($prodId, $format = 'json')
     {
-        $path = $this->sCachedProdRevsDir."/".$prodId.".gener.".$format;
-        if(!file_exists($path)){
+        $path = $this->sCachedProdRevsDir . "/" . $prodId . ".gener." . $format;
+        if (!file_exists($path)) {
             return true;
         }
         $changedTime = filemtime($path);
         $expireDate = strtotime("- {$this->sReviewsExpirePeriodCacheDemand} hours");
-        if($changedTime <= $expireDate){
+        if ($changedTime <= $expireDate) {
             return true;
-        }
-        else{
+        } else {
             return false;
         }
     }
@@ -987,17 +991,13 @@ class Foxrate_ReviewCoreIntegration_Model_Review extends Mage_Core_Model_Abstrac
     {
         $lastImportDate = $this->config->getConfigParam($this->sFoxrateConfNameImportDate);
         $expireDate = strtotime("- {$this->sReviewsExpirePeriod} hours");
-        if(!$lastImportDate)
-        {
+        if (!$lastImportDate) {
             return true;
         }
 
-        if($lastImportDate <= $expireDate)
-        {
+        if ($lastImportDate <= $expireDate) {
             return true;
-        }
-        else
-        {
+        } else {
             return false;
         }
     }
@@ -1011,7 +1011,7 @@ class Foxrate_ReviewCoreIntegration_Model_Review extends Mage_Core_Model_Abstrac
     {
         $this->cleanLog();
         $time = date("Y.m.d H:i:s");
-        $logMessage = $time." ".$eventMessage."\n";
+        $logMessage = $time . " " . $eventMessage . "\n";
         oxUtils::getInstance()->writeToLog($logMessage, $this->sFoxrateLoggerFileName);
         return $eventMessage;
     }
@@ -1019,14 +1019,14 @@ class Foxrate_ReviewCoreIntegration_Model_Review extends Mage_Core_Model_Abstrac
     /**
      * Log cleaning
      */
-    protected function cleanLog(){
+    protected function cleanLog()
+    {
         $logsDir = $this->config->getLogsDir();
-        $foxLog = $logsDir.$this->sFoxrateLoggerFileName;
-        if(file_exists($foxLog))
-        {
+        $foxLog = $logsDir . $this->sFoxrateLoggerFileName;
+        if (file_exists($foxLog)) {
             $size = filesize($foxLog);
-            $mSize = ($size/1024)/1024;
-            if($mSize >= 20){
+            $mSize = ($size / 1024) / 1024;
+            if ($mSize >= 20) {
                 unlink($foxLog);
             }
         }
@@ -1038,12 +1038,11 @@ class Foxrate_ReviewCoreIntegration_Model_Review extends Mage_Core_Model_Abstrac
     public function downloadLog()
     {
         $logsDir = $this->config->getLogsDir();
-        $foxLog = $logsDir.$this->sFoxrateLoggerFileName;
-        if(file_exists($foxLog))
-        {
+        $foxLog = $logsDir . $this->sFoxrateLoggerFileName;
+        if (file_exists($foxLog)) {
             header('Content-Description: File Transfer');
             header('Content-Type: application/octet-stream');
-            header('Content-Disposition: attachment; filename='.$this->sFoxrateLoggerFileName);
+            header('Content-Disposition: attachment; filename=' . $this->sFoxrateLoggerFileName);
             header('Content-Transfer-Encoding: binary');
             header('Expires: 0');
             header('Cache-Control: must-revalidate');
@@ -1067,15 +1066,12 @@ class Foxrate_ReviewCoreIntegration_Model_Review extends Mage_Core_Model_Abstrac
         $revPage = false;
         $path = $this->prodRevFilenameBuilder($prodId, "page", $page, "json");
 
-        try
-        {
+        try {
             $rawContent = $this->ReadFileContents($path);
             $arrContent = json_decode($rawContent);
             $revPage = $arrContent;
-        }
-        catch(Exception $e)
-        {
-            $this->config->writeToLog($e->getMessage() ." product: ".$prodId);
+        } catch (Exception $e) {
+            $this->config->writeToLog($e->getMessage() . " product: " . $prodId);
             throw new Exception("Product review info not found.");
         }
         return $revPage;
@@ -1088,11 +1084,9 @@ class Foxrate_ReviewCoreIntegration_Model_Review extends Mage_Core_Model_Abstrac
      */
     public function convertObjectToArray($data)
     {
-        if (is_array($data) || is_object($data))
-        {
+        if (is_array($data) || is_object($data)) {
             $result = array();
-            foreach ($data as $key => $value)
-            {
+            foreach ($data as $key => $value) {
                 $result[$key] = $this->convertObjectToArray($value);
             }
             return $result;
@@ -1110,15 +1104,12 @@ class Foxrate_ReviewCoreIntegration_Model_Review extends Mage_Core_Model_Abstrac
     {
         $revGen = false;
         $path = $this->prodRevFilenameBuilder($prodId, "general");
-        try
-        {
+        try {
             $rawContent = $this->ReadFileContents($path);
             $revGen = json_decode($rawContent);
             $this->checkReviewValid($revGen);
-        }
-        catch(Exception $e)
-        {
-            $this->config->writeToLog($e->getMessage() ." product: ".$prodId);
+        } catch (Exception $e) {
+            $this->config->writeToLog($e->getMessage() . " product: " . $prodId);
             throw new Exception("Reviews for this product are not found");
         }
         return $revGen;
@@ -1130,13 +1121,13 @@ class Foxrate_ReviewCoreIntegration_Model_Review extends Mage_Core_Model_Abstrac
      * @param $review
      * @throws Exception
      */
-    protected  function checkReviewValid($review)
+    protected function checkReviewValid($review)
     {
-        if($review->count == 0)
-        {
+        if ($review->count == 0) {
             throw new Exception('Product review is not valid.');
         }
     }
+
     /**
      * Builds review file path from parameters
      * @param $prodId
@@ -1169,8 +1160,7 @@ class Foxrate_ReviewCoreIntegration_Model_Review extends Mage_Core_Model_Abstrac
     {
         if (is_file($path)) {
             $content = file_get_contents($path);
-            if(!$content)
-            {
+            if (!$content) {
                 throw new Exception("Error: Failed to load data from file: " . $path);
             }
         } else {
@@ -1184,21 +1174,24 @@ class Foxrate_ReviewCoreIntegration_Model_Review extends Mage_Core_Model_Abstrac
      * @param $prodId
      * @return array
      */
-    protected  function loadProductsAllRevs_Cache($prodId)
+    protected function loadProductsAllRevs_Cache($prodId)
     {
         $pages = 0;
         $reviewArr = array();
         $reviewArr[$this->sAPIResRev] = array();
         $reviewMain = array();
 
-        do{
+        do {
             $pages++;
             $reviewsPage = $this->loadCachedProductReviews($prodId, $pages);
-            if($reviewsPage) {
-                $reviewArr[$this->sAPIResRev] = array_merge($reviewArr[$this->sAPIResRev], $this->convertObjectToArray($reviewsPage->reviews));
+            if ($reviewsPage) {
+                $reviewArr[$this->sAPIResRev] = array_merge(
+                    $reviewArr[$this->sAPIResRev],
+                    $this->convertObjectToArray($reviewsPage->reviews)
+                );
                 $reviewMain = $this->convertObjectToArray($reviewsPage);
             }
-        } while ($pages < $reviewMain[$this->sAPIResPageCnt ]);
+        } while ($pages < $reviewMain[$this->sAPIResPageCnt]);
 
         $reviewArr = array_merge($reviewMain, $reviewArr);
 
@@ -1213,34 +1206,33 @@ class Foxrate_ReviewCoreIntegration_Model_Review extends Mage_Core_Model_Abstrac
      * @param $filter
      * @return array|bool|string
      */
-    public function getFilteredProductRevs($prodId, $page=1, $filter)
+    public function getFilteredProductRevs($prodId, $page = 1, $filter)
     {
         $activeFilter = false;
         $innerFilter = array();
-        foreach($filter as $key => $condition)
-        {
-            if((isset($key)) && (isset($condition)) && $condition!=""){
+        foreach ($filter as $key => $condition) {
+            if ((isset($key)) && (isset($condition)) && $condition != "") {
                 $activeFilter = true;
                 $innerFilter[$key] = $condition;
             }
         }
 
-        if($activeFilter){
+        if ($activeFilter) {
             $allRevs = $this->loadProductsAllRevs_Cache($prodId);
             $revsPerPage = $this->sFoxrateSettings['foxratePR_RevsPerPage'];
 
-            foreach($innerFilter as $key => $condition){
+            foreach ($innerFilter as $key => $condition) {
                 $allRevs[$this->sAPIResRev] = $this->applyFilterForRevs($allRevs[$this->sAPIResRev], $key, $condition);
                 $allRevs[$this->sAPIResRevCount] = count($allRevs[$this->sAPIResRev]);
-                $allRevs[$this->sAPIResPageCnt] = ceil($allRevs[$this->sAPIResRevCount]/$revsPerPage);
+                $allRevs[$this->sAPIResPageCnt] = ceil($allRevs[$this->sAPIResRevCount] / $revsPerPage);
             }
-            if($allRevs[$this->sAPIResPageCnt] > 1){
+            if ($allRevs[$this->sAPIResPageCnt] > 1) {
                 $allRevs = $this->applyFilterForRevs($allRevs, 'page', $page);
-            }else{
+            } else {
                 $allRevs[$this->sAPIResPageCnt] = 1;
                 $allRevs[$this->sAPIResCurPage] = 1;
             }
-        }else{
+        } else {
             $allRevs = $this->loadCachedProductReviews($prodId, $page);
         }
         return $allRevs;
@@ -1253,12 +1245,11 @@ class Foxrate_ReviewCoreIntegration_Model_Review extends Mage_Core_Model_Abstrac
     {
 
         $foxrateFiltering = Mage::helper('reviewcoreintegration/filter');
-        $finalRevs ="";
-        switch($filterRule)
-        {
+        $finalRevs = "";
+        switch ($filterRule) {
             case "star_filter":
                 $finalRevs = $foxrateFiltering->filter($filterVal, $revs, 'filterRevs_Ratings');
-                if(empty($finalRevs)){
+                if (empty($finalRevs)) {
                     throw new Exception('No products found with selected star count');
                 }
                 break;
@@ -1269,7 +1260,7 @@ class Foxrate_ReviewCoreIntegration_Model_Review extends Mage_Core_Model_Abstrac
                 break;
             case "search";
                 $finalRevs = $foxrateFiltering->filter($filterVal, $revs, 'filterRevs_Search');
-                if(empty($finalRevs)){
+                if (empty($finalRevs)) {
                     throw new Exception('Could not find any product with given keyword');
                 }
                 break;
@@ -1277,7 +1268,11 @@ class Foxrate_ReviewCoreIntegration_Model_Review extends Mage_Core_Model_Abstrac
                 $currPageIndex = $filterVal;
                 $filterVal--;
                 $revsPerPage = $this->sFoxrateSettings['foxratePR_RevsPerPage'];
-                $finalRevs[$this->sAPIResRev] = array_slice($revs[$this->sAPIResRev], $filterVal*$revsPerPage, $revsPerPage);
+                $finalRevs[$this->sAPIResRev] = array_slice(
+                    $revs[$this->sAPIResRev],
+                    $filterVal * $revsPerPage,
+                    $revsPerPage
+                );
                 $finalRevs[$this->sAPIResRevCount] = $revs[$this->sAPIResRevCount];
                 $finalRevs[$this->sAPIResPageCnt] = $revs[$this->sAPIResPageCnt];
                 $finalRevs[$this->sAPIResCurPage] = $currPageIndex;
@@ -1290,8 +1285,6 @@ class Foxrate_ReviewCoreIntegration_Model_Review extends Mage_Core_Model_Abstrac
     }
 
 
-
-
     /**
      * Calculates date
      * @param $date
@@ -1301,8 +1294,7 @@ class Foxrate_ReviewCoreIntegration_Model_Review extends Mage_Core_Model_Abstrac
     {
         $matches = array();
         $result = preg_match($this->regExpDateFromApi, $date, $matches);
-        if($result)
-        {
+        if ($result) {
             return $matches[1];
         }
     }
@@ -1318,15 +1310,13 @@ class Foxrate_ReviewCoreIntegration_Model_Review extends Mage_Core_Model_Abstrac
     {
         $pageCounts = array(-2, -1, 0, 1, 2);
         $pageNav = array();
-        foreach($pageCounts as $pageCount){
+        foreach ($pageCounts as $pageCount) {
             $result = $currentPage + $pageCount;
-            if(($result > 0) && ($result <= $totalPages))
-            {
-                if($result == $currentPage){
+            if (($result > 0) && ($result <= $totalPages)) {
+                if ($result == $currentPage) {
                     $pageNav = array_merge($pageNav, array('current' => $result));
-                }
-                else{
-                    $pageNav = array_merge($pageNav, array('other'.$result => $result));
+                } else {
+                    $pageNav = array_merge($pageNav, array('other' . $result => $result));
                 }
             }
         }
@@ -1339,11 +1329,12 @@ class Foxrate_ReviewCoreIntegration_Model_Review extends Mage_Core_Model_Abstrac
     public function getSortingCriteria()
     {
         $sortingCriteria = array(
-            ''          => '',
-            'date_asc'  => 'Date ↑',
+            '' => '',
+            'date_asc' => 'Date ↑',
             'date_desc' => 'Date ↓',
-            'rate_asc'  => 'Rating ↑',
-            'rate_desc' => 'Rating ↓');
+            'rate_asc' => 'Rating ↑',
+            'rate_desc' => 'Rating ↓'
+        );
         return $sortingCriteria;
     }
 
@@ -1352,18 +1343,22 @@ class Foxrate_ReviewCoreIntegration_Model_Review extends Mage_Core_Model_Abstrac
      */
     public function voteReview($revId, $useful)
     {
-        if($useful == 'true')
-        {
+        if ($useful == 'true') {
             $useful = true;
-        }else{
+        } else {
             $useful = false;
         }
         $this->loadSellerId_Cache();
         $params = array("reviewId" => $revId);
         $url = $this->apiCallBuilder('voteProductReview', 'json', $params);
         $postParams = json_encode(array('useful' => $useful));
-        $resultRaw = $this->makeRequestBasicAuth($url, $this->sFoxrateAPIUsername, $this->sFoxrateAPIPassword, array("Content-type: application/json"),
-            $postParams);
+        $resultRaw = $this->makeRequestBasicAuth(
+            $url,
+            $this->sFoxrateAPIUsername,
+            $this->sFoxrateAPIPassword,
+            array("Content-type: application/json"),
+            $postParams
+        );
         return $resultRaw;
     }
 
@@ -1373,18 +1368,22 @@ class Foxrate_ReviewCoreIntegration_Model_Review extends Mage_Core_Model_Abstrac
      */
     public function abuseReview($revId, $abuse)
     {
-        if($abuse == 'true')
-        {
+        if ($abuse == 'true') {
             $abuse = true;
-        }else{
+        } else {
             $abuse = false;
         }
         $this->loadSellerId_Cache();
         $params = array("reviewId" => $revId);
         $url = $this->apiCallBuilder('abuseReview', 'json', $params);
         $postParams = json_encode(array('abuse' => $abuse));
-        $resultRaw = $this->makeRequestBasicAuth($url, $this->sFoxrateAPIUsername, $this->sFoxrateAPIPassword, array("Content-type: application/json"),
-            $postParams);
+        $resultRaw = $this->makeRequestBasicAuth(
+            $url,
+            $this->sFoxrateAPIUsername,
+            $this->sFoxrateAPIPassword,
+            array("Content-type: application/json"),
+            $postParams
+        );
         return $resultRaw;
     }
 
@@ -1395,8 +1394,7 @@ class Foxrate_ReviewCoreIntegration_Model_Review extends Mage_Core_Model_Abstrac
     {
 
         $isAllowed = $this->config->getConfigParam('foxratePR_WriteReview');
-        if($isAllowed=='off' || is_null($isAllowed))
-        {
+        if ($isAllowed == 'off' || is_null($isAllowed)) {
             return null;
         }
 
@@ -1408,9 +1406,8 @@ class Foxrate_ReviewCoreIntegration_Model_Review extends Mage_Core_Model_Abstrac
         //http://foxrate.de/product_rate/de/15170/shop_1/315a1773d274183955625d030225fcc9
 
 
-        $link=$this->getFoxrateUrl()."/".$this->sFoxrateProdProfLink."/". $lang ."/".$this->sFoxrateAPI2sellerId."/".$this->sFoxrateAPIShopId."/";
-        $link.=$prodId;
-        return $link;
+        return $this->getFoxrateUrl(
+        ) . "/" . $this->sFoxrateProdProfLink . "/" . $lang . "/" . $this->sFoxrateAPI2sellerId . "/" . $this->sFoxrateAPIShopId . "/" . $prodId;
     }
 
     /**
@@ -1420,10 +1417,9 @@ class Foxrate_ReviewCoreIntegration_Model_Review extends Mage_Core_Model_Abstrac
      */
     public function loadProductIds()
     {
-        $model = Mage::getModel('catalog/product'); ;
-        $collection = $model->getCollection(); ;
-        foreach ($collection as $product)
-        {
+        $model = Mage::getModel('catalog/product');;
+        $collection = $model->getCollection();;
+        foreach ($collection as $product) {
             $productIds[$product->getId()] = $product->getId();
         }
         array_unique($productIds);
@@ -1432,8 +1428,7 @@ class Foxrate_ReviewCoreIntegration_Model_Review extends Mage_Core_Model_Abstrac
 
     public function getTotalReviews($generalReview)
     {
-        if (!isset($generalReview))
-        {
+        if (!isset($generalReview)) {
             throw new Exception('General product review info not given!');
         }
         return $generalReview['count'];
@@ -1455,9 +1450,8 @@ class Foxrate_ReviewCoreIntegration_Model_Review extends Mage_Core_Model_Abstrac
      */
     public function enableDevMode()
     {
-        if ($this->isDevEnviroment())
-        {
-            $this->foxrateApiUrl =  'https://api.foxrate.vm';
+        if ($this->isDevEnviroment()) {
+            $this->foxrateApiUrl = 'https://api.foxrate.vm';
 
             $this->foxrateUrl = 'http://foxrate.vm/';
         }

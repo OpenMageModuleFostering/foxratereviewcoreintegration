@@ -14,6 +14,8 @@ class Foxrate_ReviewCoreIntegration_Block_Helper extends Mage_Review_Block_Helpe
 
     protected $reviewTotalsData;
 
+    private static $kernel;
+
     protected function _construct()
     {
         parent::_construct();
@@ -21,16 +23,24 @@ class Foxrate_ReviewCoreIntegration_Block_Helper extends Mage_Review_Block_Helpe
 
     protected function _toHtml()
     {
+        $kernel = $this->getKernel();
+
         //force new Review Total model
         /** @var Foxrate_ReviewCoreIntegration_Model_Reviewtotals reviewTotalsModel */
-        $this->reviewTotalsModel = Mage::getModel('reviewcoreintegration/reviewtotals');
-        $this->reviewTotals = $this->reviewTotalsModel->getReviewTotalData($this->getEntityId());
+//        $this->reviewTotalsModel = Mage::getModel('reviewcoreintegration/reviewtotals');
+//        $this->reviewTotals = $this->reviewTotalsModel->getReviewTotalData($this->getEntityId());
 
-        $this->assign('reviewLink', Mage::getModel('reviewcoreintegration/review')->getWriteReviewLink($this->getEntityId()));
-        $this->assign('reviewTotals', $this->reviewTotals);
+        $reviewTotals = $kernel->get('rci.review_totals');
+        $reviewTotals->setProductId($this->getEntityId());
+
+        $this->assign('reviewLink', $this->getKernel()->get('rci.review')->getWriteReviewLink($this->getEntityId()));
+        $this->assign('reviewTotalsData', $reviewTotals->getReviewTotalData($this->getEntityId()));
+        $this->assign('reviewTotals', $reviewTotals);
+        $this->assign('ratingHelper', $this->getKernel()->get('rci.rating_helper'));
+        $this->assign('processedReviews', $this->getKernel()->get('rci.rating_helper'));
         $this->assign('entityId', $this->getEntityId());
 
-        if (0 == $this->reviewTotalsModel->getTotalReviews())
+        if (0 == $reviewTotals->getTotalReviews())
         {
             $this->setTemplate('foxrate/rating/empty.phtml');
             return parent::_toHtml();
@@ -95,5 +105,19 @@ class Foxrate_ReviewCoreIntegration_Block_Helper extends Mage_Review_Block_Helpe
         }
 
         return $this->reviewTotalsModel;
+    }
+
+
+    public function getKernel()
+    {
+        if (self::$kernel !== null)
+        {
+            return self::$kernel;
+        }
+
+        $kernel = new Foxrate_Kernel('dev', false);
+        $kernel->boot();
+
+        return self::$kernel = $kernel;
     }
 }

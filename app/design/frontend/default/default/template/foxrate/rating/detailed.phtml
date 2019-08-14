@@ -1,19 +1,16 @@
 <?php
-$processedReviews = Mage::helper('reviewcoreintegration/processreviews');
-$ratingHelper = Mage::helper('reviewcoreintegration/rating');
-?>
-<?php if ($this->reviewTotalsModel()->getReviewsCount()): ?>
+if ($reviewTotals->getReviewsCount()): ?>
     <div class="ratings">
-        <?php if ($this->reviewTotalsModel()->getRatingSummary()):?>
+        <? if ($reviewTotals->getTotalReviews() > 0): ?>
             <div class="rating-box">
                 <?php echo $ratingHelper->getRatingStars($this->getEntityId());?>
             </div>
             <br/>
-        <?php endif;?>
+        <? endif; ?>
 
         <?php if (!isset($reviewLink)): ?>
             <p class="rating-links">
-                <a href="<?php echo $this->getReviewsUrl() ?>"><?php echo $this->__('%d Review(s)', $this->reviewTotalsModel()->getReviewsCount()) ?></a>
+                <a href="<?php echo $this->getReviewsUrl() ?>"><?php echo $this->__('%d Review(s)', $reviewTotals->getReviewsCount()) ?></a>
             </p>
             <?php else: ?>
 
@@ -22,9 +19,9 @@ $ratingHelper = Mage::helper('reviewcoreintegration/rating');
             ?>
             <div class="rating-links">
                 <?php if (isset($addReviewsLink)): ?>
-                    <a href="<?php echo $this->getReviewsUrl() ?>"><?php echo $this->__('%d Review(s)', $this->reviewTotalsModel()->getReviewsCount()) ?></a>
+                    <a href="<?php echo $this->getReviewsUrl() ?>"><?php echo $this->__('%d Review(s)', $reviewTotals->getReviewsCount()) ?></a>
                 <?php else: ?>
-                    <?php echo $this->__('%d Review(s)', $this->reviewTotalsModel()->getReviewsCount()) ?>
+                    <?php echo $this->__('%d Review(s)', $reviewTotals->getReviewsCount()) ?>
                 <?php endif; ?>
 
                 <span class="separator">|</span>

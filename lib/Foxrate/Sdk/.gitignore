@@ -1,0 +1,10 @@
+.idea
+atlassian-ide-plugin.xml
+._*
+.project
+*.sublime-project
+*.sublime-workspace
+*.tmproj
+*.bak
+*.swp
+*~.nib

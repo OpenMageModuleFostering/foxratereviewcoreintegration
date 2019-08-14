@@ -55,5 +55,8 @@ class Foxrate_OrdersExport_IndexController extends Mage_Core_Controller_Front_Ac
         exit();
     }
 
-
+    public function editAction()
+    {
+        exit('hey-ho');
+    }
 }

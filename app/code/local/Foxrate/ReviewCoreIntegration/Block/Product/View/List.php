@@ -17,7 +17,14 @@ class Foxrate_ReviewCoreIntegration_Block_Product_View_List extends Mage_Review_
 
     protected function _toHtml()
     {
-        $this->assign('foxrateReview', $this->getReviewModel());
+        $productid = $this->getFoxrateProductId();
+
+        $kernel = new Foxrate_Kernel('dev', false);
+        $kernel->boot();
+
+        //'foxrateReviewGeneralData' => $kernel->get('rci.review_totals')->getReviewTotalData($productid)
+        $this->assign('foxrateReview', $kernel->get('rci.review'));
+        $this->assign('foxrateReviewGeneralData', $kernel->get('rci.review_totals')->getReviewTotalData($productid));
 
         return parent::_toHtml();
     }
@@ -44,17 +51,6 @@ class Foxrate_ReviewCoreIntegration_Block_Product_View_List extends Mage_Review_
     public function richSnippetIsActive()
     {
         return $this->config->getConfigParam('foxrateRichSnippetActive');
-    }
-
-
-    /**
-     * Create review sorting criteria
-     * @return array
-     */
-    public function getSortingCriteria()
-    {
-        $pageNav = $this->getReviewModel()->getSortingCriteria();
-        return $pageNav;
     }
 
     public function getAjaxControllerUrl()

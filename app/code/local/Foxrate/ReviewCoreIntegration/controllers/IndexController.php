@@ -12,5 +12,4 @@ class Foxrate_ReviewCoreIntegration_IndexController extends Mage_Core_Controller
 
         $this->renderLayout();
     }
-
 }

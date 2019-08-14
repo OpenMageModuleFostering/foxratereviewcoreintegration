@@ -8,12 +8,12 @@ jQuery("#sortingExec").change(function(){loadUserRevPage(1, document.getElementB
 jQuery("#showAllExec").click(function(){loadUserRevPage(1, document.getElementById('shopUrl').value, document.getElementById('productId').value, {star:''})});
 //jQuery('#foxrateProductReviews').ready(cacheOnDemandProdRev(document.getElementById('shopUrl').value, document.getElementById('productId').value));
 
-    jQuery('#readReviews').click(function() {
-        jQuery('html, body').animate({
+jQuery('#readReviews').click(function() {
+    jQuery('html, body').animate({
         scrollTop: jQuery("#itemTabs").offset().top
     }, 1000);
 
-        jQuery('#foxrateProductReviewsTab').click();
+    jQuery('#foxrateProductReviewsTab').click();
 });
 jQuery("#search").keypress(function(event) {
     if (event.which == 13) {

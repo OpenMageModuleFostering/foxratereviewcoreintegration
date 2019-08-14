@@ -9,6 +9,8 @@ class Foxrate_ReviewCoreIntegration_Block_Review_Rating_Detailed extends Mage_Co
 
     protected $reviewTotalsModel;
 
+    private static $kernel;
+
     public function __construct()
     {
         parent::__construct();
@@ -18,14 +20,17 @@ class Foxrate_ReviewCoreIntegration_Block_Review_Rating_Detailed extends Mage_Co
 
     protected function _toHtml()
     {
-        $entityId = $this->getEntityId();
-
         //check empty reviews
-        $this->reviewTotalsData = $this->reviewTotalsModel()->getReviewTotalData($entityId);
 
-        $this->assign('reviewTotals', $this->reviewTotalsData);
-        $this->assign('reviewLink', $this->getWriteReviewLink($entityId));
-        $this->assign('entityId', $entityId);
+        $this->reviewTotalsModel = $this->getKernel()->get('rci.review_totals');
+        $this->reviewTotalsModel->setProductId($this->getEntityId());
+        $this->reviewTotalsData = $this->reviewTotalsModel->getReviewTotalData($this->getEntityId());
+
+        $this->assign('reviewTotals', $this->reviewTotalsModel);
+        $this->assign('reviewLink', $this->getKernel()->get('rci.review')->getWriteReviewLink($this->getEntityId()));
+//        $this->assign('reviewLink', $this->getWriteReviewLink($this->getEntityId()));
+        $this->assign('entityId', $this->getEntityId());
+        $this->assign('ratingHelper', $this->getKernel()->get('rci.rating_helper'));
 
         if (0 == $this->reviewTotalsModel()->getTotalReviews())
         {
@@ -55,20 +60,10 @@ class Foxrate_ReviewCoreIntegration_Block_Review_Rating_Detailed extends Mage_Co
     {
         if (null == $this->reviewTotalsModel)
         {
-            $this->reviewTotalsModel = Mage::getModel('reviewcoreintegration/reviewtotals');
+            $this->reviewTotalsModel = $this->getKernel()->get('rci.review_totals');
         }
 
         return $this->reviewTotalsModel;
-    }
-
-
-    /**
-     * Get Config Model
-     * @return false|Mage_Core_Model_Abstract
-     */
-    public function getConfig()
-    {
-        return Mage::getModel('reviewcoreintegration/config');
     }
 
     public function getEntityId()
@@ -76,5 +71,16 @@ class Foxrate_ReviewCoreIntegration_Block_Review_Rating_Detailed extends Mage_Co
         return Mage::app()->getRequest()->getParam('id');
     }
 
+    public function getKernel()
+    {
+        if (self::$kernel !== null)
+        {
+            return self::$kernel;
+        }
 
+        $kernel = new Foxrate_Kernel('dev', false);
+        $kernel->boot();
+
+        return self::$kernel = $kernel;
+    }
 }

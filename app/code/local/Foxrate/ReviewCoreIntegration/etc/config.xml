@@ -1,9 +1,38 @@
 <config>
     <modules>
         <Foxrate_ReviewCoreIntegration>
-            <version>3.1.1</version>
+            <version>3.3.0</version>
         </Foxrate_ReviewCoreIntegration>
     </modules>
+
+    <admin>
+        <!--
+            Here we are telling the Magento router to look for the controllers in the Super_Awesome_controllers_Adminhtml before we look in the
+            Mage_Adminhtml module for all urls that begin with /admin/controller_name
+         -->
+        <routers>
+            <adminhtml>
+                <args>
+                    <modules>
+                        <foxrate before="Mage_Adminhtml">Foxrate_ReviewCoreIntegration_Adminhtml</foxrate>
+                    </modules>
+                </args>
+                <args>
+                    <modules>
+                        <Foxrate_ReviewCoreIntegration after="Mage_Adminhtml">Foxrate_ReviewCoreIntegration</Foxrate_ReviewCoreIntegration>
+                    </modules>
+                </args>
+            </adminhtml>
+            <reviewcoreintegration>
+                <use>admin</use>
+                <args>
+                    <module>Foxrate_ReviewCoreIntegration</module>
+                    <frontName>foxrateadmin</frontName>
+                </args>
+            </reviewcoreintegration>
+        </routers>
+    </admin>
+
 
     <frontend>
         <layout>
@@ -31,6 +60,18 @@
                 </Foxrate_ReviewCoreIntegration>
             </modules>
         </translate>
+
+        <events>
+            <core_block_abstract_to_html_after>
+                <observers>
+                    <content_template_observer>
+                        <type>singleton</type>
+                        <class>reviewcoreintegration/observer</class>
+                        <method>updateContentTemplate</method>
+                    </content_template_observer>
+                </observers>
+            </core_block_abstract_to_html_after>
+        </events>
     </frontend>
 
     <adminhtml>
@@ -53,6 +94,13 @@
                 </admin>
             </resources>
         </acl>
+        <layout>
+            <updates>
+                <reviewcoreintegration>
+                    <file>reviewcoreintegration.xml</file>
+                </reviewcoreintegration>
+            </updates>
+        </layout>
     </adminhtml>
 
     <global>
@@ -60,7 +108,6 @@
             <review>
                 <rewrite>
                     <product_view>Foxrate_ReviewCoreIntegration_Block_Product_View</product_view>
-
                     <product_view_list>Foxrate_ReviewCoreIntegration_Block_Product_View_List</product_view_list>
                     <helper>Foxrate_ReviewCoreIntegration_Block_Helper</helper>
                 </rewrite>
@@ -129,5 +176,4 @@
             </reviewcoreintegration_import>
         </jobs>
     </crontab>
-
 </config>
