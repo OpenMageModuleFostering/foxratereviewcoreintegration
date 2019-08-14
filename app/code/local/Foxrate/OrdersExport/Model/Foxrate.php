@@ -21,7 +21,7 @@ class Foxrate_OrdersExport_Model_Foxrate
     /**
      * Foxrate plugin version
      */
-    protected $_foxratePluginVersion = '3.3.0';
+    protected $_foxratePluginVersion = '3.3.1';
 
     public function __construct()
     {
