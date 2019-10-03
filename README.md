@@ -1,3 +1,5 @@
+
+
 ## Original Package Description
 
 Foxrate Reviews Core integration module integrates Foxrate reviews into Magento.
