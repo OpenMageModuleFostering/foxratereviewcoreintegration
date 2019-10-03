@@ -1,16 +1,19 @@
 {
-    "name": "OpenMageModuleFostering/foxratereviewcoreintegration",
+    "name": "OpenMageModuleFostering\/foxratereviewcoreintegration",
     "type": "magento-module",
     "license": "GPL",
     "homepage": "",
     "description": "Foxrate Reviews Core integration module integrates Foxrate reviews into Magento.",
     "authors": [
-    {
-        "name": "Darius Kasperavicius",
-        "email": "darius@foxrate.de"
-    }
-],
+        {
+            "name": "Darius Kasperavicius",
+            "email": "darius@foxrate.de"
+        }
+    ],
     "suggest": {
-        "magento-hackathon/magento-composer-installer": "*"
-    }
+        "magento-hackathon\/magento-composer-installer": "*"
+    },
+    "keywords": [
+        "openmage-module"
+    ]
 }
